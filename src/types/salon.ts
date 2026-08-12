@@ -18,7 +18,10 @@ export interface SalonService {
   description: string;
   price: number;
   duration: string;
+  durationMinutes?: number;
   deposit?: number;
+  requiresHairAddon?: boolean;
+  isExtensionService?: boolean;
 }
 
 export interface SalonReview {
@@ -42,6 +45,7 @@ export interface SalonFAQ {
 }
 
 export interface SalonProfile {
+  id?: string;
   slug: string;
   templateId: TemplateId;
   businessName: string;
@@ -49,6 +53,7 @@ export interface SalonProfile {
   city: string;
   bio: string;
   heroImage: string;
+  logoUrl?: string | null;
   logoInitials: string;
   email: string;
   phone: string;
