@@ -19,6 +19,16 @@ import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor
 import { BookingSettingsFields } from "@/components/availability/BookingSettingsFields";
 import type { Availability, BlockedTime } from "@/types/database";
 
+function addMinutesToTime(time: string, minutes: number): string {
+  const [h, m] = time.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return time;
+  const total = h * 60 + m + minutes;
+  const clamped = Math.min(Math.max(total, 0), 23 * 60 + 59);
+  const hh = String(Math.floor(clamped / 60)).padStart(2, "0");
+  const mm = String(clamped % 60).padStart(2, "0");
+  return `${hh}:${mm}`;
+}
+
 export function AvailabilityManager({
   businessId,
   initialAvailability,
@@ -160,6 +170,7 @@ export function AvailabilityManager({
           </label>
           <div className="grid gap-3 sm:grid-cols-2">
             <input
+              min={new Date().toISOString().split("T")[0]}
               type="date"
               value={blockDate}
               onChange={(e) => setBlockDate(e.target.value)}
@@ -185,6 +196,7 @@ export function AvailabilityManager({
               <span className="text-[#9C8E86]">–</span>
               <input
                 type="time"
+                min={blockStart ? addMinutesToTime(blockStart, 30) : undefined}
                 value={blockEnd}
                 onChange={(e) => setBlockEnd(e.target.value)}
                 className="rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
