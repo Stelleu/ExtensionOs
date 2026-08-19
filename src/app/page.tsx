@@ -3,10 +3,24 @@ import Link from "next/link";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-[#FAF8F5] text-[#1A1614]">
-      <header className="px-6 py-6 lg:px-10">
+      <header className="flex items-center justify-between px-6 py-6 lg:px-10">
         <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-[#B8956E]">
           HairBoss AI
         </p>
+        <div className="flex gap-4">
+          <Link
+            href="/login"
+            className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6B5E58]"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-full bg-[#1A1614] px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-white"
+          >
+            Start free
+          </Link>
+        </div>
       </header>
 
       <main className="mx-auto flex max-w-3xl flex-1 flex-col justify-center px-6 py-24 lg:px-10">
@@ -15,28 +29,23 @@ export default function Home() {
           <span className="italic text-[#B8956E]">ready in minutes</span>
         </h1>
         <p className="mt-6 text-lg leading-relaxed text-[#6B5E58]">
-          AI-powered websites for hair extension specialists. Booking with live
-          availability, deposits, and client management — no code needed.
+          AI-powered websites for hair extension specialists. Live availability
+          booking, deposits, and client management — no Calendly needed.
         </p>
 
-        <div className="mt-10">
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+          <Link
+            href="/signup"
+            className="inline-flex items-center justify-center rounded-full bg-[#1A1614] px-10 py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-white transition-all hover:bg-[#B8956E]"
+          >
+            Create your salon
+          </Link>
           <Link
             href="/luxehairlondon"
-            className="inline-flex items-center justify-center rounded-full bg-[#1A1614] px-10 py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-white transition-all hover:bg-[#B8956E] hover:shadow-xl"
+            className="inline-flex items-center justify-center rounded-full border border-[#1A1614] px-10 py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-[#1A1614]"
           >
-            View demo template
+            View demo
           </Link>
-        </div>
-
-        <div className="mt-16 rounded-3xl bg-white p-8 shadow-[0_4px_40px_-12px_rgba(26,22,20,0.1)] ring-1 ring-[#1A1614]/5">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#9C8E86]">
-            Template 1 of 3 · Redesigned
-          </p>
-          <p className="mt-2 font-serif text-2xl">Luxury Black &amp; Gold</p>
-          <p className="mt-2 text-sm text-[#6B5E58]">
-            Airy, editorial layout with Calendly-style booking. Demo:{" "}
-            <span className="text-[#B8956E]">Luxe Hair London</span>
-          </p>
         </div>
       </main>
     </div>

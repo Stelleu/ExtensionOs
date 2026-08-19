@@ -52,14 +52,25 @@ export function Hero({ salon }: HeroProps) {
         {/* Image collage — airy, editorial */}
         <div className="relative order-1 lg:order-2">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-[0_24px_80px_-20px_rgba(26,22,20,0.25)]">
-            <Image
-              src={salon.heroImage}
-              alt={salon.businessName}
-              fill
-              priority
-              className="object-cover object-top"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
+            {salon.heroImage.startsWith("blob:") ||
+            salon.heroImage.startsWith("data:") ? (
+              // Local object URLs (onboarding preview) are not valid next/image sources.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={salon.heroImage}
+                alt={salon.businessName}
+                className="absolute inset-0 h-full w-full object-cover object-top"
+              />
+            ) : (
+              <Image
+                src={salon.heroImage}
+                alt={salon.businessName}
+                fill
+                priority
+                className="object-cover object-top"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            )}
           </div>
           {/* Floating accent card */}
           <div className="absolute -bottom-6 -left-4 rounded-2xl bg-white p-5 shadow-xl ring-1 ring-[#1A1614]/5 sm:-left-8 lg:-left-12">

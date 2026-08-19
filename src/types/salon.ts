@@ -1,3 +1,5 @@
+import type { HairAddonPriceRow } from "@/types/database";
+
 export type TemplateId = "luxury-black-gold" | "beige-minimal" | "glam-pink";
 
 export interface SalonTheme {
@@ -18,7 +20,11 @@ export interface SalonService {
   description: string;
   price: number;
   duration: string;
+  durationMinutes?: number;
   deposit?: number;
+  requiresHairAddon?: boolean;
+  hairAddonPricing?: HairAddonPriceRow[];
+  isExtensionService?: boolean;
 }
 
 export interface SalonReview {
@@ -42,6 +48,7 @@ export interface SalonFAQ {
 }
 
 export interface SalonProfile {
+  id?: string;
   slug: string;
   templateId: TemplateId;
   businessName: string;
@@ -49,6 +56,7 @@ export interface SalonProfile {
   city: string;
   bio: string;
   heroImage: string;
+  logoUrl?: string | null;
   logoInitials: string;
   email: string;
   phone: string;

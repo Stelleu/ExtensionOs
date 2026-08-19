@@ -9,6 +9,7 @@ import { Reviews } from "./Reviews";
 import { InstagramStrip } from "./InstagramStrip";
 import { FAQ } from "./FAQ";
 import { Policies } from "./Policies";
+import { BookingForm } from "@/components/booking/BookingForm";
 import { BookingWidget } from "./BookingWidget";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
@@ -26,11 +27,11 @@ export function LuxuryBlackGoldTemplate({ salon }: LuxuryBlackGoldTemplateProps)
         <Marquee />
         <About salon={salon} />
         <Services salon={salon} />
-        <Gallery salon={salon} />
-        <Reviews salon={salon} />
+        {salon.gallery.length > 0 && <Gallery salon={salon} />}
+        {salon.reviews.length > 0 && <Reviews salon={salon} />}
         <InstagramStrip salon={salon} />
-        <BookingWidget salon={salon} />
-        <FAQ salon={salon} />
+        {salon.id ? <BookingForm salon={salon} /> : <BookingWidget salon={salon} />}
+        {salon.faqs.length > 0 && <FAQ salon={salon} />}
         <Policies salon={salon} />
         <Contact salon={salon} />
       </main>

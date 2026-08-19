@@ -66,7 +66,6 @@ export const demoSalons: Record<string, SalonProfile> = {
         id: "g1",
         src: "https://images.unsplash.com/photo-1583724711595-ed09eedf1ff8?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         alt: "Long blonde extensions",
-        alt: "Long blonde extensions",
         label: "Tape-in · 22 inch",
       },
       {
@@ -90,6 +89,7 @@ export const demoSalons: Record<string, SalonProfile> = {
       {
         id: "g5",
         src:"https://images.unsplash.com/photo-1655267009613-ae7f13da112d?q=80&w=1377&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        alt: "Curly texture extensions",
         label: "Curly blend",
       },
       {
