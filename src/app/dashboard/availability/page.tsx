@@ -13,7 +13,9 @@ export default async function AvailabilityPage() {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, minimum_booking_notice_hours, cancellation_policy")
+    .select(
+      "id, minimum_booking_notice_hours, cancellation_policy, payment_link_url, payment_confirmation_window_hours"
+    )
     .eq("owner_id", user.id)
     .single();
   if (!business) redirect("/onboarding");
@@ -39,6 +41,10 @@ export default async function AvailabilityPage() {
       initialNoticeHours={business.minimum_booking_notice_hours ?? 24}
       initialCancellationPolicy={
         business.cancellation_policy || DEFAULT_CANCELLATION_POLICY
+      }
+      initialPaymentLinkUrl={business.payment_link_url ?? ""}
+      initialConfirmationWindowHours={
+        business.payment_confirmation_window_hours ?? 4
       }
     />
   );

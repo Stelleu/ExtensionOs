@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   createOrUpdateBusiness,
   createService,
@@ -10,12 +10,17 @@ import {
 } from "@/lib/actions/business";
 import {
   DEFAULT_CANCELLATION_POLICY,
+  DEFAULT_HAIR_ADDON_PRICING,
   defaultWeekSchedule,
   scheduleToRows,
   type DayAvailability,
 } from "@/lib/salon-helpers";
+import { HairAddonPricingEditor } from "@/components/services/HairAddonPricingEditor";
+import type { HairAddonPriceRow } from "@/types/database";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
 import { BookingSettingsFields } from "@/components/availability/BookingSettingsFields";
+import { OnboardingSitePreview } from "@/components/onboarding/OnboardingSitePreview";
+import { draftToSalonProfile } from "@/lib/mappers";
 import Link from "next/link";
 
 type Step = 1 | 2 | 3 | 4;
@@ -33,6 +38,7 @@ export function OnboardingWizard() {
     bio: "",
     instagram: "",
     phone: "",
+    email: "",
     location: "",
     logo_url: "" as string | null,
     hero_image_url: "" as string | null,
@@ -45,6 +51,7 @@ export function OnboardingWizard() {
     duration_minutes: 180,
     requires_hair_addon: true,
     is_extension_service: true,
+    hair_addon_pricing: DEFAULT_HAIR_ADDON_PRICING as HairAddonPriceRow[],
   });
 
   const [schedule, setSchedule] = useState<DayAvailability[]>(defaultWeekSchedule);
@@ -52,42 +59,57 @@ export function OnboardingWizard() {
   const [cancellationPolicy, setCancellationPolicy] = useState(
     DEFAULT_CANCELLATION_POLICY
   );
+  const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
+  const [confirmationWindowHours, setConfirmationWindowHours] = useState(4);
   const [businessSlug, setBusinessSlug] = useState<string | null>(null);
   const [setupReady, setSetupReady] = useState(false);
-  const [uploading, setUploading] = useState<"logo" | "hero" | null>(null);
+  const [step1Panel, setStep1Panel] = useState<"edit" | "preview">("edit");
+  const [pendingFiles, setPendingFiles] = useState<{
+    logo?: File;
+    hero?: File;
+  }>({});
   const [localPreview, setLocalPreview] = useState<{
     logo?: string;
     hero?: string;
   }>({});
 
-  async function handleUpload(file: File, kind: "logo" | "hero") {
+  const draftSalon = useMemo(
+    () =>
+      draftToSalonProfile({
+        ...profile,
+        logo_url: localPreview.logo || profile.logo_url,
+        hero_image_url: localPreview.hero || profile.hero_image_url,
+      }),
+    [profile, localPreview]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (localPreview.logo) URL.revokeObjectURL(localPreview.logo);
+      if (localPreview.hero) URL.revokeObjectURL(localPreview.hero);
+    };
+    // Only revoke on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function selectImage(file: File, kind: "logo" | "hero") {
     const objectUrl = URL.createObjectURL(file);
-    setLocalPreview((p) =>
-      kind === "logo" ? { ...p, logo: objectUrl } : { ...p, hero: objectUrl }
+    setLocalPreview((p) => {
+      const prev = kind === "logo" ? p.logo : p.hero;
+      if (prev) URL.revokeObjectURL(prev);
+      return kind === "logo" ? { ...p, logo: objectUrl } : { ...p, hero: objectUrl };
+    });
+    setPendingFiles((p) =>
+      kind === "logo" ? { ...p, logo: file } : { ...p, hero: file }
     );
-    setUploading(kind);
-    setError(null);
-    try {
-      const fd = new FormData();
-      fd.set("file", file);
-      fd.set("kind", kind);
-      const { url } = await uploadBusinessAsset(fd);
-      setProfile((p) =>
-        kind === "logo" ? { ...p, logo_url: url } : { ...p, hero_image_url: url }
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Upload failed — you can continue without an image"
-      );
-      // Clear local preview if upload failed so user knows it didn't stick
-      setLocalPreview((p) =>
-        kind === "logo" ? { ...p, logo: undefined } : { ...p, hero: undefined }
-      );
-    } finally {
-      setUploading(null);
-    }
+  }
+
+  async function uploadPendingImage(file: File, kind: "logo" | "hero") {
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("kind", kind);
+    const { url } = await uploadBusinessAsset(fd);
+    return url;
   }
 
   function saveStep1(e: React.FormEvent) {
@@ -95,7 +117,18 @@ export function OnboardingWizard() {
     setError(null);
     startTransition(async () => {
       try {
-        const biz = await createOrUpdateBusiness(profile);
+        const nextProfile = { ...profile };
+        if (pendingFiles.logo) {
+          nextProfile.logo_url = await uploadPendingImage(pendingFiles.logo, "logo");
+        }
+        if (pendingFiles.hero) {
+          nextProfile.hero_image_url = await uploadPendingImage(
+            pendingFiles.hero,
+            "hero"
+          );
+        }
+        setProfile(nextProfile);
+        const biz = await createOrUpdateBusiness(nextProfile);
         setBusinessId(biz.id);
         setBusinessSlug(biz.slug);
         if (typeof biz.minimum_booking_notice_hours === "number") {
@@ -103,6 +136,12 @@ export function OnboardingWizard() {
         }
         if (biz.cancellation_policy) {
           setCancellationPolicy(biz.cancellation_policy);
+        }
+        if (biz.payment_link_url) {
+          setPaymentLinkUrl(biz.payment_link_url);
+        }
+        if (typeof biz.payment_confirmation_window_hours === "number") {
+          setConfirmationWindowHours(biz.payment_confirmation_window_hours);
         }
         setStep(2);
       } catch (err) {
@@ -154,6 +193,8 @@ export function OnboardingWizard() {
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
           cancellation_policy: cancellationPolicy,
+          payment_link_url: paymentLinkUrl,
+          payment_confirmation_window_hours: confirmationWindowHours,
         });
         setStep(4);
         runGenerating();
@@ -176,6 +217,8 @@ export function OnboardingWizard() {
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
           cancellation_policy: cancellationPolicy,
+          payment_link_url: paymentLinkUrl,
+          payment_confirmation_window_hours: confirmationWindowHours,
         });
         setStep(4);
         runGenerating();
@@ -220,80 +263,123 @@ export function OnboardingWizard() {
       )}
 
       {step === 1 && (
-        <form onSubmit={saveStep1} className="space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5">
-          <h1 className="font-serif text-3xl text-[#1A1614]">Business profile</h1>
-          <p className="text-sm text-[#6B5E58]">
-            This powers your public booking page.
-          </p>
-          <Field
-            label="Business name"
-            value={profile.name}
-            onChange={(v) => setProfile({ ...profile, name: v })}
-            required
-          />
-          <Field
-            label="Tagline"
-            value={profile.tagline}
-            onChange={(v) => setProfile({ ...profile, tagline: v })}
-          />
-          <label className="block">
-            <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
-              Bio
-            </span>
-            <textarea
-              value={profile.bio}
-              onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-              rows={4}
-              className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm"
-            />
-          </label>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label="Instagram"
-              value={profile.instagram}
-              onChange={(v) => setProfile({ ...profile, instagram: v })}
-              placeholder="@yoursalon"
-            />
-            <Field
-              label="Phone"
-              value={profile.phone}
-              onChange={(v) => setProfile({ ...profile, phone: v })}
-            />
+        <div className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="font-serif text-3xl text-[#1A1614]">
+                Business profile
+              </h1>
+              <p className="mt-1 text-sm text-[#6B5E58]">
+                This powers your public booking page.
+              </p>
+            </div>
+            <div className="flex rounded-full bg-white p-1 ring-1 ring-[#1A1614]/10">
+              <button
+                type="button"
+                onClick={() => setStep1Panel("edit")}
+                className={`rounded-full px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors ${
+                  step1Panel === "edit"
+                    ? "bg-[#1A1614] text-white"
+                    : "text-[#6B5E58]"
+                }`}
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep1Panel("preview")}
+                className={`rounded-full px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors ${
+                  step1Panel === "preview"
+                    ? "bg-[#1A1614] text-white"
+                    : "text-[#6B5E58]"
+                }`}
+              >
+                Preview
+              </button>
+            </div>
           </div>
-          <Field
-            label="Location"
-            value={profile.location}
-            onChange={(v) => setProfile({ ...profile, location: v })}
-            placeholder="Shoreditch, London"
-          />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <FileField
-              label="Logo"
-              onFile={(f) => handleUpload(f, "logo")}
-              preview={profile.logo_url || localPreview.logo}
-              uploading={uploading === "logo"}
-              uploaded={!!profile.logo_url}
-            />
-            <FileField
-              label="Hero image"
-              onFile={(f) => handleUpload(f, "hero")}
-              preview={profile.hero_image_url || localPreview.hero}
-              uploading={uploading === "hero"}
-              uploaded={!!profile.hero_image_url}
-            />
-          </div>
-          <p className="text-xs text-[#9C8E86]">
-            Wait for “Uploaded ✓” before continuing — selecting a file alone
-            does not save it until upload finishes.
-          </p>
-          <button
-            type="submit"
-            disabled={pending || !profile.name || !!uploading}
-            className="w-full rounded-full bg-[#1A1614] py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-white disabled:opacity-40"
+
+          <form
+            onSubmit={saveStep1}
+            className={`space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5 ${
+              step1Panel === "edit" ? "" : "hidden"
+            }`}
           >
-            {uploading ? "Uploading image…" : pending ? "Saving…" : "Continue"}
-          </button>
-        </form>
+            <Field
+              label="Business name"
+              value={profile.name}
+              onChange={(v) => setProfile({ ...profile, name: v })}
+              required
+            />
+            <Field
+              label="Tagline"
+              value={profile.tagline}
+              onChange={(v) => setProfile({ ...profile, tagline: v })}
+            />
+            <label className="block">
+              <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+                Bio
+              </span>
+              <textarea
+                value={profile.bio}
+                onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                rows={4}
+                className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm"
+              />
+            </label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Email"
+                value={profile.email}
+                onChange={(v) => setProfile({ ...profile, email: v })}
+                placeholder="hello@yoursalon.com"
+              />
+              <Field
+                label="Phone"
+                value={profile.phone}
+                onChange={(v) => setProfile({ ...profile, phone: v })}
+              />
+              <Field
+                label="Instagram"
+                value={profile.instagram}
+                onChange={(v) => setProfile({ ...profile, instagram: v })}
+                placeholder="@yoursalon"
+              />
+            </div>
+            <Field
+              label="Location"
+              value={profile.location}
+              onChange={(v) => setProfile({ ...profile, location: v })}
+              placeholder="Shoreditch, London"
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FileField
+                label="Logo"
+                onFile={(f) => selectImage(f, "logo")}
+                preview={localPreview.logo || profile.logo_url}
+              />
+              <FileField
+                label="Hero image"
+                onFile={(f) => selectImage(f, "hero")}
+                preview={localPreview.hero || profile.hero_image_url}
+              />
+            </div>
+            <p className="text-xs text-[#9C8E86]">
+              Images preview instantly. They upload when you tap Continue.
+            </p>
+            <button
+              type="submit"
+              disabled={pending || !profile.name}
+              className="w-full rounded-full bg-[#1A1614] py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-white disabled:opacity-40"
+            >
+              {pending ? "Saving…" : "Continue"}
+            </button>
+          </form>
+
+          {step1Panel === "preview" && (
+            <OnboardingSitePreview salon={draftSalon} />
+          )}
+        </div>
       )}
 
       {step === 2 && (
@@ -328,8 +414,25 @@ export function OnboardingWizard() {
           <Toggle
             label="Requires hair addon question"
             checked={service.requires_hair_addon}
-            onChange={(v) => setService({ ...service, requires_hair_addon: v })}
+            onChange={(v) =>
+              setService({
+                ...service,
+                requires_hair_addon: v,
+                hair_addon_pricing:
+                  v && service.hair_addon_pricing.length === 0
+                    ? DEFAULT_HAIR_ADDON_PRICING
+                    : service.hair_addon_pricing,
+              })
+            }
           />
+          {service.requires_hair_addon && (
+            <HairAddonPricingEditor
+              rows={service.hair_addon_pricing}
+              onChange={(hair_addon_pricing) =>
+                setService({ ...service, hair_addon_pricing })
+              }
+            />
+          )}
           <Toggle
             label="Extension service (enables 6-week maintenance reminder)"
             checked={service.is_extension_service}
@@ -370,8 +473,12 @@ export function OnboardingWizard() {
           <BookingSettingsFields
             noticeHours={noticeHours}
             cancellationPolicy={cancellationPolicy}
+            paymentLinkUrl={paymentLinkUrl}
+            confirmationWindowHours={confirmationWindowHours}
             onNoticeChange={setNoticeHours}
             onPolicyChange={setCancellationPolicy}
+            onPaymentLinkChange={setPaymentLinkUrl}
+            onConfirmationWindowChange={setConfirmationWindowHours}
           />
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -536,14 +643,10 @@ function FileField({
   label,
   onFile,
   preview,
-  uploading,
-  uploaded,
 }: {
   label: string;
   onFile: (f: File) => void;
   preview?: string | null;
-  uploading?: boolean;
-  uploaded?: boolean;
 }) {
   return (
     <label className="block">
@@ -553,19 +656,12 @@ function FileField({
       <input
         type="file"
         accept="image/*"
-        disabled={uploading}
         onChange={(e) => {
           const f = e.target.files?.[0];
           if (f) onFile(f);
         }}
-        className="w-full text-sm disabled:opacity-50"
+        className="w-full text-sm"
       />
-      {uploading && (
-        <p className="mt-2 text-xs text-[#B8956E]">Uploading…</p>
-      )}
-      {!uploading && uploaded && (
-        <p className="mt-2 text-xs text-emerald-700">Uploaded ✓</p>
-      )}
       {preview && (
         // eslint-disable-next-line @next/next/no-img-element
         <img

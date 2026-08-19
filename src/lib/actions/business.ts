@@ -3,9 +3,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateConsultationFormSchema } from "@/lib/consultation-forms";
-import { formatDateISO, getHairAddonPrice, slugify } from "@/lib/salon-helpers";
-import { getStripe } from "@/lib/stripe";
-import type { BookingStatus, HairTexture } from "@/types/database";
+import {
+  formatDateISO,
+  findHairAddonPrice,
+  parseHairAddonPricing,
+  slugify,
+} from "@/lib/salon-helpers";
+import { invokeEdgeFunction } from "@/lib/supabase/edge-functions";
+import type {
+  BookingStatus,
+  CancelledReason,
+  HairAddonPriceRow,
+  HairTexture,
+} from "@/types/database";
 import { revalidatePath } from "next/cache";
 
 async function requireUser() {
@@ -69,6 +79,7 @@ export async function createOrUpdateBusiness(input: {
       .select()
       .single();
     if (error) throw new Error(error.message);
+    revalidatePath("/dashboard/settings");
     return data;
   }
 
@@ -106,6 +117,7 @@ export async function createOrUpdateBusiness(input: {
     .single();
 
   if (error) throw new Error(error.message);
+  revalidatePath("/dashboard/settings");
   return data;
 }
 
@@ -117,6 +129,7 @@ export async function createService(input: {
   duration_minutes: number;
   requires_hair_addon: boolean;
   is_extension_service: boolean;
+  hair_addon_pricing?: HairAddonPriceRow[];
 }) {
   const { supabase, user } = await requireUser();
   const { data: biz } = await supabase
@@ -142,6 +155,9 @@ export async function createService(input: {
       duration_minutes: input.duration_minutes,
       requires_hair_addon: input.requires_hair_addon,
       is_extension_service: input.is_extension_service,
+      hair_addon_pricing: input.requires_hair_addon
+        ? input.hair_addon_pricing ?? []
+        : [],
       active: true,
       consultation_form_schema: schema,
     })
@@ -162,6 +178,7 @@ export async function updateService(
     duration_minutes: number;
     requires_hair_addon: boolean;
     is_extension_service: boolean;
+    hair_addon_pricing: HairAddonPriceRow[];
     active: boolean;
   }>
 ) {
@@ -251,20 +268,30 @@ export async function updateBookingSettings(input: {
   business_id: string;
   minimum_booking_notice_hours: number;
   cancellation_policy: string;
+  payment_link_url?: string | null;
+  payment_confirmation_window_hours: number;
 }) {
   const { supabase, user } = await requireUser();
-  const allowed = [0, 12, 24, 48];
-  if (!allowed.includes(input.minimum_booking_notice_hours)) {
+  const allowedNotice = [0, 12, 24, 48];
+  const allowedWindow = [2, 4, 12, 24];
+  if (!allowedNotice.includes(input.minimum_booking_notice_hours)) {
     throw new Error("Invalid notice period");
+  }
+  if (!allowedWindow.includes(input.payment_confirmation_window_hours)) {
+    throw new Error("Invalid payment confirmation window");
   }
   const policy = input.cancellation_policy.trim();
   if (!policy) throw new Error("Cancellation policy cannot be empty");
+
+  const paymentLink = input.payment_link_url?.trim() || null;
 
   const { data, error } = await supabase
     .from("businesses")
     .update({
       minimum_booking_notice_hours: input.minimum_booking_notice_hours,
       cancellation_policy: policy,
+      payment_link_url: paymentLink,
+      payment_confirmation_window_hours: input.payment_confirmation_window_hours,
     })
     .eq("id", input.business_id)
     .eq("owner_id", user.id)
@@ -380,6 +407,7 @@ export interface CreateBookingInput {
   hairTexture?: HairTexture | null;
   healthNotes?: string | null;
   healthNotesConsent: boolean;
+  imageConsent: boolean;
 }
 
 export async function createBookingCheckout(input: CreateBookingInput) {
@@ -438,6 +466,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
         phone: input.clientPhone.trim(),
         health_notes: healthNotes,
         health_notes_consent: input.healthNotesConsent,
+        image_consent: input.imageConsent,
       })
       .eq("id", existingClient.id)
       .select("id")
@@ -454,6 +483,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
         phone: input.clientPhone.trim(),
         health_notes: healthNotes,
         health_notes_consent: input.healthNotesConsent,
+        image_consent: input.imageConsent,
       })
       .select("id")
       .single();
@@ -462,9 +492,19 @@ export async function createBookingCheckout(input: CreateBookingInput) {
   }
 
   const wantsAddon = service.requires_hair_addon && input.wantsHairAddon;
-  const hairAddonPrice = wantsAddon
-    ? getHairAddonPrice(input.hairLength)
-    : 0;
+  const pricing = parseHairAddonPricing(service.hair_addon_pricing);
+  let hairAddonPrice = 0;
+  if (wantsAddon) {
+    const matched = findHairAddonPrice(
+      pricing,
+      input.hairLength,
+      input.hairTexture
+    );
+    if (matched === null) {
+      throw new Error("Selected hair length and texture is not available");
+    }
+    hairAddonPrice = matched;
+  }
   const servicePrice = Number(service.base_price);
   const totalPrice = servicePrice + hairAddonPrice;
   const depositAmount = Number(service.deposit_amount);
@@ -507,47 +547,12 @@ export async function createBookingCheckout(input: CreateBookingInput) {
     };
   }
 
-  const stripe = getStripe();
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "gbp",
-          unit_amount: Math.round(depositAmount * 100),
-          product_data: {
-            name: `Deposit — ${service.name}`,
-            description: `${business.name} · ${input.appointmentDate} ${timeNorm}`,
-          },
-        },
-      },
-    ],
-    customer_email: email,
-    metadata: {
-      booking_id: booking.id,
-      business_id: input.businessId,
-    },
-    success_url: `${appUrl}/booking/success?booking_id=${booking.id}&slug=${business.slug}`,
-    cancel_url: `${appUrl}/${business.slug}?booking=cancelled`,
-  });
+  void invokeEdgeFunction("notify-stylist", { booking_id: booking.id });
 
-  if (session.payment_intent) {
-    await admin
-      .from("bookings")
-      .update({
-        stripe_payment_intent_id:
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : session.payment_intent.id,
-      })
-      .eq("id", booking.id);
-  }
-
-  if (!session.url) throw new Error("Stripe session missing URL");
-
-  return { bookingId: booking.id, checkoutUrl: session.url };
+  return {
+    bookingId: booking.id,
+    checkoutUrl: `${appUrl}/booking/success?booking_id=${booking.id}&slug=${business.slug}`,
+  };
 }
 
 export async function updateBookingStatus(
@@ -568,7 +573,12 @@ export async function updateBookingStatus(
 
   const { error } = await supabase
     .from("bookings")
-    .update({ status })
+    .update({
+      status,
+      ...(status === "cancelled"
+        ? { cancelled_reason: "stylist_cancelled" as CancelledReason }
+        : {}),
+    })
     .eq("id", bookingId);
   if (error) throw new Error(error.message);
 

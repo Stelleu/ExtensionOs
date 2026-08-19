@@ -19,7 +19,7 @@ export default async function ClientsPage() {
   // Never bulk-export health_notes — only show on single-client detail
   const { data: clients } = await supabase
     .from("clients")
-    .select("id, name, email, phone, visit_count, health_notes_consent, created_at")
+    .select("id, name, email, phone, visit_count, health_notes_consent, image_consent, created_at")
     .eq("business_id", business.id)
     .order("created_at", { ascending: false });
 
@@ -50,7 +50,18 @@ export default async function ClientsPage() {
                 </td>
                 <td className="px-4 py-3">{c.visit_count}</td>
                 <td className="px-4 py-3">
-                  <DeleteClientButton clientId={c.id} />
+                  <div className="flex flex-wrap gap-2">
+                    <span
+                      className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+                        c.image_consent
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-[#FAF8F5] text-[#9C8E86]"
+                      }`}
+                    >
+                      Image use: {c.image_consent ? "allowed" : "not allowed"}
+                    </span>
+                    <DeleteClientButton clientId={c.id} />
+                  </div>
                 </td>
               </tr>
             ))}

@@ -10,7 +10,7 @@ import { updateBookingStatus } from "@/lib/actions/business";
 export type AppointmentCardBooking = Booking & {
   clients: Pick<
     Client,
-    "id" | "name" | "visit_count" | "health_notes" | "health_notes_consent"
+    "id" | "name" | "visit_count" | "health_notes" | "health_notes_consent" | "image_consent"
   > | null;
   services: Pick<Service, "id" | "name"> | null;
 };
@@ -91,6 +91,18 @@ export function AppointmentCard({ booking }: AppointmentCardProps) {
           <p className="mt-1">{client.health_notes}</p>
         </div>
       )}
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <span
+          className={`rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider ${
+            client?.image_consent
+              ? "bg-emerald-100 text-emerald-800"
+              : "bg-[#FAF8F5] text-[#9C8E86]"
+          }`}
+        >
+          Image use: {client?.image_consent ? "allowed" : "not allowed"}
+        </span>
+      </div>
 
       {(booking.status === "confirmed" ||
         booking.status === "pending_payment") && (

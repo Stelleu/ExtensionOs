@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { PendingPaymentScreen } from "@/components/booking/PendingPaymentScreen";
+import { BookingConfirmedScreen } from "@/components/booking/BookingConfirmedScreen";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { formatDisplayDate, formatSlotLabel } from "@/lib/salon-helpers";
 
 export default async function BookingSuccessPage({
   searchParams,
@@ -9,29 +10,57 @@ export default async function BookingSuccessPage({
 }) {
   const { booking_id, slug } = await searchParams;
 
-  let summary: {
-    service?: string;
-    date?: string;
-    time?: string;
-    status?: string;
-  } = {};
-
   if (booking_id) {
     try {
       const admin = createAdminClient();
       const { data } = await admin
         .from("bookings")
-        .select("appointment_date, appointment_time, status, services(name)")
+        .select(
+          "appointment_date, appointment_time, status, deposit_amount, services(name), businesses(payment_link_url, slug, name, instagram, email, phone)"
+        )
         .eq("id", booking_id)
         .maybeSingle();
+
       if (data) {
         const svc = data.services as unknown as { name: string } | null;
-        summary = {
-          service: svc?.name,
-          date: data.appointment_date,
-          time: String(data.appointment_time).slice(0, 5),
-          status: data.status,
-        };
+        const biz = data.businesses as unknown as {
+          payment_link_url: string | null;
+          slug: string;
+          name: string;
+          instagram: string | null;
+          email: string | null;
+          phone: string | null;
+        } | null;
+        const salonSlug = slug || biz?.slug || "";
+        const time = String(data.appointment_time).slice(0, 5);
+
+        if (data.status === "pending_payment" && svc?.name) {
+          return (
+            <PendingPaymentScreen
+              serviceName={svc.name}
+              appointmentDate={data.appointment_date}
+              appointmentTime={time}
+              depositAmount={Number(data.deposit_amount)}
+              paymentLinkUrl={biz?.payment_link_url ?? null}
+              salonSlug={salonSlug}
+              instagram={biz?.instagram}
+              email={biz?.email}
+              phone={biz?.phone}
+            />
+          );
+        }
+
+        if (svc?.name && data.appointment_date && time) {
+          return (
+            <BookingConfirmedScreen
+              serviceName={svc.name}
+              appointmentDate={data.appointment_date}
+              appointmentTime={time}
+              businessName={biz?.name ?? "your stylist"}
+              salonSlug={salonSlug}
+            />
+          );
+        }
       }
     } catch {
       // env may not be configured yet
@@ -47,19 +76,9 @@ export default async function BookingSuccessPage({
         <h1 className="mt-6 font-serif text-3xl text-[#1A1614]">
           Booking confirmed
         </h1>
-        {summary.service && summary.date && summary.time ? (
-          <p className="mt-4 text-sm text-[#6B5E58]">
-            {summary.service} on {formatDisplayDate(summary.date)} at{" "}
-            {formatSlotLabel(summary.time)}.
-            {summary.status === "pending_payment"
-              ? " Waiting for payment confirmation…"
-              : " See you soon!"}
-          </p>
-        ) : (
-          <p className="mt-4 text-sm text-[#6B5E58]">
-            Thank you — your deposit has been received.
-          </p>
-        )}
+        <p className="mt-4 text-sm text-[#6B5E58]">
+          Thank you — we&apos;ll see you soon.
+        </p>
         {slug && (
           <Link
             href={`/${slug}`}

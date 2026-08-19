@@ -5,6 +5,10 @@ import {
   AppointmentCard,
   type AppointmentCardBooking,
 } from "@/components/dashboard/AppointmentCard";
+import {
+  PendingPaymentCard,
+  type PendingPaymentBooking,
+} from "@/components/dashboard/PendingPaymentCard";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -22,14 +26,23 @@ export default async function DashboardPage() {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  const { data: pendingPayments } = await supabase
+    .from("bookings")
+    .select(
+      "*, clients(id, name), services(id, name)"
+    )
+    .eq("business_id", business.id)
+    .eq("status", "pending_payment")
+    .order("confirmation_deadline", { ascending: true });
+
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "*, clients(id, name, visit_count, health_notes, health_notes_consent), services(id, name)"
+      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent), services(id, name)"
     )
     .eq("business_id", business.id)
     .gte("appointment_date", today)
-    .in("status", ["confirmed", "pending_payment"])
+    .eq("status", "confirmed")
     .order("appointment_date", { ascending: true })
     .order("appointment_time", { ascending: true })
     .limit(20);
@@ -61,10 +74,31 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Upcoming" value={String(bookings?.length ?? 0)} />
+        <Stat
+          label="Awaiting payment"
+          value={String(pendingPayments?.length ?? 0)}
+        />
         <Stat label="Clients" value={String(clientCount ?? 0)} href="/dashboard/clients" />
         <Stat label="Services" value={String(serviceCount ?? 0)} href="/dashboard/services" />
+      </div>
+
+      <h2 className="mt-12 font-serif text-2xl text-[#1A1614]">
+        Awaiting payment confirmation
+      </h2>
+      <p className="mt-1 text-sm text-[#6B5E58]">
+        Deposits are confirmed via the link in your email — not from this screen.
+      </p>
+      <div className="mt-6 grid gap-4">
+        {(pendingPayments as PendingPaymentBooking[] | null)?.map((b) => (
+          <PendingPaymentCard key={b.id} booking={b} />
+        ))}
+        {(!pendingPayments || pendingPayments.length === 0) && (
+          <p className="rounded-2xl border border-dashed border-[#E8E0D8] p-8 text-center text-sm text-[#9C8E86]">
+            No bookings awaiting deposit confirmation.
+          </p>
+        )}
       </div>
 
       <h2 className="mt-12 font-serif text-2xl text-[#1A1614]">

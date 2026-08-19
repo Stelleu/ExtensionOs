@@ -9,9 +9,9 @@ import {
   formatDisplayDate,
   formatSlotLabel,
   getMonthDays,
-  HAIR_LENGTHS,
-  HAIR_TEXTURES,
-  getHairAddonPrice,
+  findHairAddonPrice,
+  uniqueAddonLengths,
+  texturesForLength,
 } from "@/lib/salon-helpers";
 import { createBookingCheckout } from "@/lib/actions/business";
 
@@ -49,10 +49,11 @@ export function BookingForm({ salon }: BookingFormProps) {
   const [healthNotes, setHealthNotes] = useState("");
   const [healthNotesConsent, setHealthNotesConsent] = useState(false);
   const [wantsHairAddon, setWantsHairAddon] = useState(false);
-  const [hairLength, setHairLength] = useState<string>('18"');
+  const [hairLength, setHairLength] = useState<string>("");
   const [hairTexture, setHairTexture] = useState<HairTexture>("body-wavy");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [imageConsent, setImageConsent] = useState(false);
 
   const service = salon.services.find((s) => s.id === serviceId) as
     | SalonService
@@ -68,9 +69,12 @@ export function BookingForm({ salon }: BookingFormProps) {
   today.setHours(0, 0, 0, 0);
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
+  const hairAddonRows = service?.hairAddonPricing ?? [];
+  const addonLengths = uniqueAddonLengths(hairAddonRows);
+  const addonTextures = texturesForLength(hairAddonRows, hairLength);
   const hairAddonPrice =
     service?.requiresHairAddon && wantsHairAddon
-      ? getHairAddonPrice(hairLength)
+      ? findHairAddonPrice(hairAddonRows, hairLength, hairTexture) ?? 0
       : 0;
   const totalPreview = (service?.price ?? 0) + hairAddonPrice;
 
@@ -104,6 +108,12 @@ export function BookingForm({ salon }: BookingFormProps) {
     setSelectedTime(null);
     setSlots([]);
     setWantsHairAddon(false);
+    const next = salon.services.find((s) => s.id === id);
+    const first = next?.hairAddonPricing?.[0];
+    if (first) {
+      setHairLength(first.length);
+      setHairTexture(first.texture);
+    }
     setStep("datetime");
     setError(null);
   }
@@ -127,9 +137,13 @@ export function BookingForm({ salon }: BookingFormProps) {
       setError("Consent is required to store health notes.");
       return;
     }
-    if (service.requiresHairAddon && wantsHairAddon && !hairLength) {
-      setError("Please select a hair length.");
-      return;
+    if (service.requiresHairAddon && wantsHairAddon) {
+      if (
+        findHairAddonPrice(hairAddonRows, hairLength, hairTexture) === null
+      ) {
+        setError("Please select an available hair length and texture.");
+        return;
+      }
     }
 
     setError(null);
@@ -150,6 +164,7 @@ export function BookingForm({ salon }: BookingFormProps) {
             service.requiresHairAddon && wantsHairAddon ? hairTexture : null,
           healthNotes: healthNotes.trim() || null,
           healthNotesConsent,
+          imageConsent,
         });
         window.location.href = result.checkoutUrl;
       } catch (err) {
@@ -446,7 +461,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                   placeholder="+44 7700 900000"
                 />
 
-                {service.requiresHairAddon && (
+                {service.requiresHairAddon && hairAddonRows.length > 0 && (
                   <div className="space-y-3 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-4">
                     <label className="flex items-center gap-3 text-sm text-[#1A1614]">
                       <input
@@ -455,7 +470,10 @@ export function BookingForm({ salon }: BookingFormProps) {
                         onChange={(e) => setWantsHairAddon(e.target.checked)}
                         className="h-4 w-4 accent-[#B8956E]"
                       />
-                      I need hair supplied (+{formatPrice(hairAddonPrice || getHairAddonPrice(hairLength))})
+                      I need hair supplied
+                      {hairAddonPrice > 0
+                        ? ` (+${formatPrice(hairAddonPrice)})`
+                        : ""}
                     </label>
                     {wantsHairAddon && (
                       <div className="grid gap-3 sm:grid-cols-2">
@@ -465,12 +483,22 @@ export function BookingForm({ salon }: BookingFormProps) {
                           </span>
                           <select
                             value={hairLength}
-                            onChange={(e) => setHairLength(e.target.value)}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              setHairLength(next);
+                              const textures = texturesForLength(
+                                hairAddonRows,
+                                next
+                              );
+                              if (!textures.includes(hairTexture) && textures[0]) {
+                                setHairTexture(textures[0]);
+                              }
+                            }}
                             className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
                           >
-                            {HAIR_LENGTHS.map((l) => (
+                            {addonLengths.map((l) => (
                               <option key={l} value={l}>
-                                {l} — {formatPrice(getHairAddonPrice(l))}
+                                {l}
                               </option>
                             ))}
                           </select>
@@ -486,11 +514,21 @@ export function BookingForm({ salon }: BookingFormProps) {
                             }
                             className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
                           >
-                            {HAIR_TEXTURES.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
-                              </option>
-                            ))}
+                            {addonTextures.map((t) => {
+                              const price = findHairAddonPrice(
+                                hairAddonRows,
+                                hairLength,
+                                t
+                              );
+                              return (
+                                <option key={t} value={t}>
+                                  {t}
+                                  {price != null
+                                    ? ` — ${formatPrice(price)}`
+                                    : ""}
+                                </option>
+                              );
+                            })}
                           </select>
                         </label>
                       </div>
@@ -519,6 +557,16 @@ export function BookingForm({ salon }: BookingFormProps) {
                   />
                   I consent to these health notes being stored securely for my
                   appointment (required if notes are provided).
+                </label>
+                <label className="flex items-start gap-3 text-sm text-[#6B5E58]">
+                  <input
+                    type="checkbox"
+                    checked={imageConsent}
+                    onChange={(e) => setImageConsent(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-[#B8956E]"
+                  />
+                  I consent to my hair transformation being photographed for
+                  the salon&apos;s portfolio. Yes, I consent.
                 </label>
 
                 {error && (

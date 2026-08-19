@@ -1,6 +1,8 @@
-import type { HairTexture } from "@/types/database";
+import type { HairAddonPriceRow, HairTexture } from "@/types/database";
 
 export const HAIR_LENGTHS = ['14"', '16"', '18"', '20"', '22"', '24"', '26"'] as const;
+
+export const HAIR_ADDON_LENGTH_OPTIONS = ['14"', '18"', '22"', '26"'] as const;
 
 export const HAIR_TEXTURES: HairTexture[] = [
   "straight",
@@ -10,19 +12,50 @@ export const HAIR_TEXTURES: HairTexture[] = [
   "kinky",
 ];
 
-const LENGTH_PRICES: Record<string, number> = {
-  '14"': 80,
-  '16"': 100,
-  '18"': 120,
-  '20"': 140,
-  '22"': 160,
-  '24"': 180,
-  '26"': 200,
-};
+export const DEFAULT_HAIR_ADDON_PRICING: HairAddonPriceRow[] = [
+  { length: '14"', texture: "body-wavy", price: 80 },
+  { length: '18"', texture: "body-wavy", price: 120 },
+  { length: '22"', texture: "body-wavy", price: 160 },
+  { length: '26"', texture: "body-wavy", price: 200 },
+];
 
-export function getHairAddonPrice(length: string | null | undefined): number {
-  if (!length) return 0;
-  return LENGTH_PRICES[length] ?? 120;
+export function parseHairAddonPricing(raw: unknown): HairAddonPriceRow[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((row) => {
+    if (!row || typeof row !== "object") return [];
+    const r = row as Record<string, unknown>;
+    const length = String(r.length ?? "").trim();
+    const texture = r.texture as HairTexture;
+    const price = Number(r.price);
+    if (!length || !HAIR_TEXTURES.includes(texture) || Number.isNaN(price)) {
+      return [];
+    }
+    return [{ length, texture, price }];
+  });
+}
+
+export function findHairAddonPrice(
+  rows: HairAddonPriceRow[],
+  length: string | null | undefined,
+  texture: HairTexture | null | undefined
+): number | null {
+  if (!length || !texture) return null;
+  const match = rows.find((r) => r.length === length && r.texture === texture);
+  return match ? Number(match.price) : null;
+}
+
+export function uniqueAddonLengths(rows: HairAddonPriceRow[]): string[] {
+  return [...new Set(rows.map((r) => r.length))];
+}
+
+export function texturesForLength(
+  rows: HairAddonPriceRow[],
+  length: string
+): HairTexture[] {
+  return rows
+    .filter((r) => r.length === length)
+    .map((r) => r.texture)
+    .filter((t, i, arr) => arr.indexOf(t) === i);
 }
 
 export function formatDurationLabel(minutes: number): string {
@@ -104,6 +137,13 @@ export const NOTICE_HOUR_OPTIONS = [
   { value: 48, label: "48 hours" },
 ] as const;
 
+export const PAYMENT_CONFIRMATION_WINDOW_OPTIONS = [
+  { value: 2, label: "2 hours" },
+  { value: 4, label: "4 hours" },
+  { value: 12, label: "12 hours" },
+  { value: 24, label: "24 hours" },
+] as const;
+
 export type TimeWindow = { start: string; end: string };
 
 export type DayAvailability = {
@@ -161,4 +201,36 @@ export function rowsToSchedule(
   }
 
   return schedule;
+}
+
+export function formatConfirmationDeadlineRemaining(deadline: string): {
+  label: string;
+  isExpired: boolean;
+} {
+  const end = new Date(deadline).getTime();
+  if (Number.isNaN(end)) {
+    return { label: "Expiring soon", isExpired: true };
+  }
+
+  const diffMs = end - Date.now();
+  if (diffMs <= 0) {
+    return { label: "Expiring soon", isExpired: true };
+  }
+
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24);
+    const remHours = hours % 24;
+    return {
+      label: remHours > 0 ? `${days}d ${remHours}h left` : `${days}d left`,
+      isExpired: false,
+    };
+  }
+  if (hours > 0) {
+    return { label: `${hours}h ${minutes}m left`, isExpired: false };
+  }
+  return { label: `${minutes}m left`, isExpired: false };
 }

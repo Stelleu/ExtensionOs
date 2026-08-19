@@ -20,6 +20,17 @@ export type HairTexture =
   | "yaki"
   | "kinky";
 
+export type CancelledReason =
+  | "payment_not_confirmed"
+  | "client_requested"
+  | "stylist_cancelled";
+
+export interface HairAddonPriceRow {
+  length: string;
+  texture: HairTexture;
+  price: number;
+}
+
 export interface ConsultationFormField {
   id: string;
   label: string;
@@ -50,6 +61,10 @@ export interface Business {
   location: string | null;
   minimum_booking_notice_hours: number;
   cancellation_policy: string;
+  payment_link_url: string | null;
+  payment_confirmation_window_hours: number;
+  maintenance_reminder_days_before: number;
+  cancellation_cutoff_hours: number;
   created_at: string;
 }
 
@@ -61,6 +76,7 @@ export interface Service {
   deposit_amount: number;
   duration_minutes: number;
   requires_hair_addon: boolean;
+  hair_addon_pricing: HairAddonPriceRow[];
   is_extension_service: boolean;
   active: boolean;
   consultation_form_schema: ConsultationFormSchema | null;
@@ -76,6 +92,7 @@ export interface Client {
   visit_count: number;
   health_notes: string | null;
   health_notes_consent: boolean;
+  image_consent: boolean;
   created_at: string;
 }
 
@@ -96,6 +113,10 @@ export interface Booking {
   deposit_paid: boolean;
   stripe_payment_intent_id: string | null;
   status: BookingStatus;
+  cancelled_reason: CancelledReason | null;
+  confirmation_token: string;
+  confirmation_deadline: string;
+  stylist_notified_at: string | null;
   maintenance_due_date: string | null;
   maintenance_reminder_sent: boolean;
   created_at: string;

@@ -35,12 +35,16 @@ export function AvailabilityManager({
   initialBlocked,
   initialNoticeHours,
   initialCancellationPolicy,
+  initialPaymentLinkUrl,
+  initialConfirmationWindowHours,
 }: {
   businessId: string;
   initialAvailability: Availability[];
   initialBlocked: BlockedTime[];
   initialNoticeHours: number;
   initialCancellationPolicy: string;
+  initialPaymentLinkUrl: string;
+  initialConfirmationWindowHours: number;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -52,6 +56,10 @@ export function AvailabilityManager({
   const [noticeHours, setNoticeHours] = useState(initialNoticeHours ?? 24);
   const [cancellationPolicy, setCancellationPolicy] = useState(
     initialCancellationPolicy || DEFAULT_CANCELLATION_POLICY
+  );
+  const [paymentLinkUrl, setPaymentLinkUrl] = useState(initialPaymentLinkUrl ?? "");
+  const [confirmationWindowHours, setConfirmationWindowHours] = useState(
+    initialConfirmationWindowHours ?? 4
   );
 
   const [blockDate, setBlockDate] = useState("");
@@ -72,6 +80,8 @@ export function AvailabilityManager({
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
           cancellation_policy: cancellationPolicy,
+          payment_link_url: paymentLinkUrl,
+          payment_confirmation_window_hours: confirmationWindowHours,
         });
         setSaved(true);
         router.refresh();
@@ -140,8 +150,12 @@ export function AvailabilityManager({
         <BookingSettingsFields
           noticeHours={noticeHours}
           cancellationPolicy={cancellationPolicy}
+          paymentLinkUrl={paymentLinkUrl}
+          confirmationWindowHours={confirmationWindowHours}
           onNoticeChange={setNoticeHours}
           onPolicyChange={setCancellationPolicy}
+          onPaymentLinkChange={setPaymentLinkUrl}
+          onConfirmationWindowChange={setConfirmationWindowHours}
         />
         <button
           type="submit"
