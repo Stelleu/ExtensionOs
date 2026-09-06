@@ -1,15 +1,16 @@
 "use client";
 
-import type { HairAddonPriceRow } from "@/types/database";
 import {
   HAIR_TEXTURE_SUBTYPE_GROUPS,
-  suggestHairMatch,
+  getRecommendationFor,
+  pricingRowsForRecommendations,
   type HairTextureSubtype,
   type HairThickness,
   type NaturalHairProfile,
 } from "@/lib/salon-helpers";
-import { formatPrice } from "@/lib/format";
-import { HairSubtypeIcon } from "@/components/booking/HairSubtypeIcon";
+import type { HairAddonPriceRow, HairTypeRecommendations } from "@/types/database";
+import { HairTypeIcon } from "@/components/booking/HairTypeIcon";
+import { HairAddonCard } from "@/components/booking/HairAddonCard";
 
 interface NaturalHairIntakeProps {
   textureSubtype: HairTextureSubtype | "";
@@ -17,6 +18,8 @@ interface NaturalHairIntakeProps {
   chemicalTreatment: boolean | null;
   notes: string;
   hairAddonPricing: HairAddonPriceRow[];
+  hairTypeRecommendations?: HairTypeRecommendations;
+  hairTypePhotos?: Record<string, string>;
   onTextureChange: (subtype: HairTextureSubtype) => void;
   onThicknessChange: (thickness: HairThickness) => void;
   onChemicalTreatmentChange: (value: boolean) => void;
@@ -29,29 +32,26 @@ export function NaturalHairIntake({
   chemicalTreatment,
   notes,
   hairAddonPricing,
+  hairTypeRecommendations = {},
+  hairTypePhotos = {},
   onTextureChange,
   onThicknessChange,
   onChemicalTreatmentChange,
   onNotesChange,
 }: NaturalHairIntakeProps) {
-  const profileReady =
-    !!textureSubtype && !!thickness && chemicalTreatment !== null;
-
-  const suggestion =
-    profileReady && textureSubtype && thickness && chemicalTreatment !== null
-      ? suggestHairMatch(
-          {
-            textureSubtype,
-            thickness,
-            chemical_treatment: chemicalTreatment,
-          },
-          hairAddonPricing
-        )
-      : null;
-
-  const matchedTextures = suggestion
-    ? [...new Set(suggestion.matches.map((m) => m.texture))]
+  const recommendations = textureSubtype
+    ? getRecommendationFor(textureSubtype, hairTypeRecommendations)
     : [];
+  const matchedRows = pricingRowsForRecommendations(
+    recommendations,
+    hairAddonPricing
+  );
+  const freeTextOnly = recommendations.filter(
+    (label) =>
+      !hairAddonPricing.some(
+        (row) => row.texture.toLowerCase() === label.toLowerCase()
+      )
+  );
 
   return (
     <div className="mt-4 space-y-4 border-t border-[#E8E0D8] pt-4">
@@ -70,9 +70,16 @@ export function NaturalHairIntake({
             <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#9C8E86]">
               {group.label}
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div
+              className={`grid gap-2 ${
+                group.subtypes.length === 1
+                  ? "grid-cols-1 sm:grid-cols-3"
+                  : "grid-cols-3"
+              }`}
+            >
               {group.subtypes.map((subtype) => {
                 const selected = textureSubtype === subtype;
+                const photo = hairTypePhotos[subtype];
                 return (
                   <button
                     key={subtype}
@@ -84,7 +91,18 @@ export function NaturalHairIntake({
                         : "border-[#E8E0D8] bg-white hover:border-[#B8956E]/40"
                     }`}
                   >
-                    <HairSubtypeIcon subtype={subtype} selected={selected} />
+                    <div className="flex h-14 w-10 items-center justify-center overflow-hidden rounded-lg bg-[#FAF8F5]">
+                      {photo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={photo}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <HairTypeIcon subtype={subtype} selected={selected} />
+                      )}
+                    </div>
                     <span className="font-medium uppercase text-[#1A1614]">
                       {subtype}
                     </span>
@@ -123,7 +141,7 @@ export function NaturalHairIntake({
           Chemical treatment
         </span>
         <p className="mb-2 text-xs text-[#9C8E86]">
-          Relaxer, colour, keratin, or similar in the last few months?
+          Do you have any chemical treatment (relaxer, colour, keratin, etc.)?
         </p>
         <div className="flex flex-wrap gap-2">
           {[
@@ -159,25 +177,28 @@ export function NaturalHairIntake({
         />
       </label>
 
-      {profileReady && (
+      {textureSubtype && (
         <div className="rounded-xl border border-[#B8956E]/30 bg-[#FAF8F5] px-4 py-3 text-sm text-[#6B5E58]">
-          {matchedTextures.length > 0 ? (
+          {recommendations.length > 0 ? (
             <>
-              <p>
-                Based on what you&apos;ve told us,{" "}
-                <span className="font-medium text-[#1A1614]">
-                  {matchedTextures.join(", ")}
-                </span>{" "}
-                may blend best with your natural hair.
+              <p className="font-medium text-[#1A1614]">
+                Your stylist recommends these for your hair type:
               </p>
-              {suggestion?.matches.some((m) => m.price > 0) && (
-                <p className="mt-2 text-xs text-[#9C8E86]">
-                  Available from{" "}
-                  {formatPrice(
-                    Math.min(...suggestion.matches.map((m) => m.price))
-                  )}
-                  .
-                </p>
+              {(matchedRows.length > 0 || freeTextOnly.length > 0) && (
+                <div className="mt-3 -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
+                  {matchedRows.map((entry) => (
+                    <HairAddonCard
+                      key={`${entry.length}-${entry.texture}`}
+                      entry={entry}
+                    />
+                  ))}
+                  {freeTextOnly.map((label) => (
+                    <HairAddonCard
+                      key={label}
+                      entry={{ length: "—", texture: label, price: 0 }}
+                    />
+                  ))}
+                </div>
               )}
             </>
           ) : (
@@ -187,16 +208,8 @@ export function NaturalHairIntake({
             </p>
           )}
           <p className="mt-2 text-xs text-[#9C8E86]">
-            Your stylist will confirm the best option for you before your
-            appointment.
+            She&apos;ll confirm the best option for you before your appointment.
           </p>
-          {suggestion && suggestion.notes.length > 0 && (
-            <ul className="mt-3 space-y-1 border-t border-[#E8E0D8] pt-3 text-xs">
-              {suggestion.notes.map((note) => (
-                <li key={note}>· {note}</li>
-              ))}
-            </ul>
-          )}
         </div>
       )}
     </div>

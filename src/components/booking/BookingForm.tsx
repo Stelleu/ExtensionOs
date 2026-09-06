@@ -9,8 +9,6 @@ import {
   formatSlotLabel,
   getMonthDays,
   findHairAddonPrice,
-  uniqueAddonLengths,
-  texturesForLength,
   type HairTextureSubtype,
   type HairThickness,
 } from "@/lib/salon-helpers";
@@ -19,6 +17,7 @@ import {
   buildNaturalHairProfile,
   NaturalHairIntake,
 } from "@/components/booking/NaturalHairIntake";
+import { HairAddonCarousel } from "@/components/booking/HairAddonCard";
 
 interface BookingFormProps {
   salon: SalonProfile;
@@ -55,7 +54,7 @@ export function BookingForm({ salon }: BookingFormProps) {
   const [healthNotesConsent, setHealthNotesConsent] = useState(false);
   const [wantsHairAddon, setWantsHairAddon] = useState(false);
   const [hairLength, setHairLength] = useState<string>("");
-  const [hairTexture, setHairTexture] = useState<string>("body-wavy");
+  const [hairTexture, setHairTexture] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [imageConsent, setImageConsent] = useState(false);
@@ -85,13 +84,22 @@ export function BookingForm({ salon }: BookingFormProps) {
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   const hairAddonRows = service?.hairAddonPricing ?? [];
-  const addonLengths = uniqueAddonLengths(hairAddonRows);
-  const addonTextures = texturesForLength(hairAddonRows, hairLength);
   const hairAddonPrice =
     service?.requiresHairAddon && wantsHairAddon
       ? findHairAddonPrice(hairAddonRows, hairLength, hairTexture) ?? 0
       : 0;
   const totalPreview = (service?.price ?? 0) + hairAddonPrice;
+
+  useEffect(() => {
+    if (hairAddonRows.length === 0) return;
+    const stillValid = hairAddonRows.some(
+      (r) => r.length === hairLength && r.texture === hairTexture
+    );
+    if (!stillValid) {
+      setHairLength(hairAddonRows[0].length);
+      setHairTexture(hairAddonRows[0].texture);
+    }
+  }, [hairAddonRows, hairLength, hairTexture]);
 
   useEffect(() => {
     if (!businessId || !serviceId) return;
@@ -513,71 +521,25 @@ export function BookingForm({ salon }: BookingFormProps) {
                     </label>
                     {wantsHairAddon && (
                       <>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <label className="block">
-                            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-                              Length
-                            </span>
-                            <select
-                              value={hairLength}
-                              onChange={(e) => {
-                                const next = e.target.value;
-                                setHairLength(next);
-                                const textures = texturesForLength(
-                                  hairAddonRows,
-                                  next
-                                );
-                                if (
-                                  !textures.includes(hairTexture) &&
-                                  textures[0]
-                                ) {
-                                  setHairTexture(textures[0]);
-                                }
-                              }}
-                              className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
-                            >
-                              {addonLengths.map((l) => (
-                                <option key={l} value={l}>
-                                  {l}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
-                          <label className="block">
-                            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-                              Texture
-                            </span>
-                            <select
-                              value={hairTexture}
-                              onChange={(e) =>
-                                setHairTexture(e.target.value)
-                              }
-                              className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
-                            >
-                              {addonTextures.map((t) => {
-                                const price = findHairAddonPrice(
-                                  hairAddonRows,
-                                  hairLength,
-                                  t
-                                );
-                                return (
-                                  <option key={t} value={t}>
-                                    {t}
-                                    {price != null
-                                      ? ` — ${formatPrice(price)}`
-                                      : ""}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          </label>
-                        </div>
+                        <HairAddonCarousel
+                          entries={hairAddonRows}
+                          selectedLength={hairLength}
+                          selectedTexture={hairTexture}
+                          onSelect={(length, texture) => {
+                            setHairLength(length);
+                            setHairTexture(texture);
+                          }}
+                        />
                         <NaturalHairIntake
                           textureSubtype={naturalTextureSubtype}
                           thickness={naturalThickness}
                           chemicalTreatment={naturalChemicalTreatment}
                           notes={naturalHairNotes}
                           hairAddonPricing={hairAddonRows}
+                          hairTypeRecommendations={
+                            service.hairTypeRecommendations
+                          }
+                          hairTypePhotos={salon.hairTypePhotos}
                           onTextureChange={setNaturalTextureSubtype}
                           onThicknessChange={setNaturalThickness}
                           onChemicalTreatmentChange={setNaturalChemicalTreatment}

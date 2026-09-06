@@ -29,10 +29,17 @@ export interface HairAddonPriceEntry {
   length: string;
   texture: string;
   price: number;
+  image_url?: string;
 }
 
 /** @deprecated Use HairAddonPriceEntry */
 export type HairAddonPriceRow = HairAddonPriceEntry;
+
+/** Maps hair type codes → recommended texture labels (from pricing or free text). */
+export type HairTypeRecommendations = Record<string, string[]>;
+
+/** Optional stylist-uploaded photo URL per hair type code. */
+export type HairTypePhotos = Record<string, string>;
 
 export interface ConsultationFormField {
   id: string;
@@ -48,20 +55,20 @@ export interface ConsultationFormSchema {
   fields: ConsultationFormField[];
 }
 
+export type HairTextureSubtype =
+  | "1"
+  | "2a"
+  | "2b"
+  | "2c"
+  | "3a"
+  | "3b"
+  | "3c"
+  | "4a"
+  | "4b"
+  | "4c";
+
 export interface NaturalHairProfile {
-  textureSubtype:
-    | "1a"
-    | "1b"
-    | "1c"
-    | "2a"
-    | "2b"
-    | "2c"
-    | "3a"
-    | "3b"
-    | "3c"
-    | "4a"
-    | "4b"
-    | "4c";
+  textureSubtype: HairTextureSubtype;
   thickness: "fine" | "medium" | "thick";
   chemical_treatment: boolean;
   notes?: string;
@@ -89,6 +96,7 @@ export interface Business {
   cancellation_cutoff_hours: number;
   prep_instructions: string;
   care_instructions: string;
+  hair_type_photos: HairTypePhotos;
   created_at: string;
 }
 
@@ -101,6 +109,7 @@ export interface Service {
   duration_minutes: number;
   requires_hair_addon: boolean;
   hair_addon_pricing: HairAddonPriceRow[];
+  hair_type_recommendations: HairTypeRecommendations;
   is_extension_service: boolean;
   active: boolean;
   consultation_form_schema: ConsultationFormSchema | null;

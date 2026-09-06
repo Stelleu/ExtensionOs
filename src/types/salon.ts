@@ -1,4 +1,4 @@
-import type { HairAddonPriceRow } from "@/types/database";
+import type { HairAddonPriceRow, HairTypeRecommendations } from "@/types/database";
 
 export type TemplateId = "luxury-black-gold" | "soft-editorial" | "bold-afro";
 
@@ -24,6 +24,7 @@ export interface SalonService {
   deposit?: number;
   requiresHairAddon?: boolean;
   hairAddonPricing?: HairAddonPriceRow[];
+  hairTypeRecommendations?: HairTypeRecommendations;
   isExtensionService?: boolean;
 }
 
@@ -62,6 +63,7 @@ export interface SalonProfile {
   phone: string;
   instagram: string;
   address: string;
+  hairTypePhotos?: Record<string, string>;
   services: SalonService[];
   gallery: GalleryItem[];
   reviews: SalonReview[];

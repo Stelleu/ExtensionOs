@@ -4,6 +4,7 @@ import {
   AppointmentCard,
   type AppointmentCardBooking,
 } from "@/components/dashboard/AppointmentCard";
+import { parseHairTypePhotos } from "@/lib/salon-helpers";
 
 export default async function BookingsPage() {
   const supabase = await createClient();
@@ -14,15 +15,17 @@ export default async function BookingsPage() {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id")
+    .select("id, hair_type_photos")
     .eq("owner_id", user.id)
     .single();
   if (!business) redirect("/onboarding");
 
+  const hairTypePhotos = parseHairTypePhotos(business.hair_type_photos);
+
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent, natural_hair_profile), services(id, name, hair_addon_pricing, requires_hair_addon)"
+      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent, natural_hair_profile), services(id, name, hair_addon_pricing, requires_hair_addon, hair_type_recommendations)"
     )
     .eq("business_id", business.id)
     .order("appointment_date", { ascending: false })
@@ -36,7 +39,11 @@ export default async function BookingsPage() {
       </p>
       <div className="mt-8 grid gap-4">
         {(bookings as AppointmentCardBooking[] | null)?.map((b) => (
-          <AppointmentCard key={b.id} booking={b} />
+          <AppointmentCard
+            key={b.id}
+            booking={b}
+            hairTypePhotos={hairTypePhotos}
+          />
         ))}
       </div>
     </div>

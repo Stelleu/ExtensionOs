@@ -3,13 +3,19 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createService, updateService } from "@/lib/actions/business";
-import type { HairAddonPriceEntry, Service } from "@/types/database";
+import type {
+  HairAddonPriceEntry,
+  HairTypeRecommendations,
+  Service,
+} from "@/types/database";
 import { formatPrice } from "@/lib/format";
 import {
   DEFAULT_HAIR_ADDON_PRICING,
   parseHairAddonPricing,
+  parseHairTypeRecommendations,
 } from "@/lib/salon-helpers";
 import { HairAddonPricingEditor } from "@/components/services/HairAddonPricingEditor";
+import { HairTypeRecommendationsEditor } from "@/components/services/HairTypeRecommendationsEditor";
 
 const emptyForm = {
   name: "",
@@ -19,6 +25,7 @@ const emptyForm = {
   requires_hair_addon: false,
   is_extension_service: true,
   hair_addon_pricing: [] as HairAddonPriceEntry[],
+  hair_type_recommendations: {} as HairTypeRecommendations,
 };
 
 export function ServicesManager({
@@ -42,6 +49,9 @@ export function ServicesManager({
         hair_addon_pricing: form.requires_hair_addon
           ? form.hair_addon_pricing
           : [],
+        hair_type_recommendations: form.requires_hair_addon
+          ? form.hair_type_recommendations
+          : {},
       });
       setShowForm(false);
       setForm(emptyForm);
@@ -167,12 +177,21 @@ function ServiceFields({
         Requires hair addon
       </label>
       {form.requires_hair_addon && (
-        <HairAddonPricingEditor
-          rows={form.hair_addon_pricing}
+        <>
+          <HairAddonPricingEditor
+            rows={form.hair_addon_pricing}
             onChange={(hair_addon_pricing: HairAddonPriceEntry[]) =>
               setForm({ ...form, hair_addon_pricing })
             }
-        />
+          />
+          <HairTypeRecommendationsEditor
+            pricing={form.hair_addon_pricing}
+            value={form.hair_type_recommendations}
+            onChange={(hair_type_recommendations) =>
+              setForm({ ...form, hair_type_recommendations })
+            }
+          />
+        </>
       )}
       <label className="flex gap-2 text-sm">
         <input
@@ -200,6 +219,9 @@ function ServiceRow({ service }: { service: Service }) {
     requires_hair_addon: service.requires_hair_addon,
     is_extension_service: service.is_extension_service,
     hair_addon_pricing: parseHairAddonPricing(service.hair_addon_pricing),
+    hair_type_recommendations: parseHairTypeRecommendations(
+      service.hair_type_recommendations
+    ),
   });
 
   function onSave(e: React.FormEvent) {
@@ -210,6 +232,9 @@ function ServiceRow({ service }: { service: Service }) {
         hair_addon_pricing: form.requires_hair_addon
           ? form.hair_addon_pricing
           : [],
+        hair_type_recommendations: form.requires_hair_addon
+          ? form.hair_type_recommendations
+          : {},
       });
       setEditing(false);
       router.refresh();

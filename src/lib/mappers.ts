@@ -8,6 +8,8 @@ import {
   DEFAULT_PREP_INSTRUCTIONS,
   formatDurationLabel,
   parseHairAddonPricing,
+  parseHairTypePhotos,
+  parseHairTypeRecommendations,
 } from "@/lib/salon-helpers";
 
 export function serviceToSalonService(service: Service): SalonService {
@@ -21,6 +23,9 @@ export function serviceToSalonService(service: Service): SalonService {
     deposit: Number(service.deposit_amount),
     requiresHairAddon: service.requires_hair_addon,
     hairAddonPricing: parseHairAddonPricing(service.hair_addon_pricing),
+    hairTypeRecommendations: parseHairTypeRecommendations(
+      service.hair_type_recommendations
+    ),
     isExtensionService: service.is_extension_service,
   };
 }
@@ -53,6 +58,7 @@ export function businessToSalonProfile(
     phone: business.phone || "",
     instagram: business.instagram || "",
     address: business.location || "",
+    hairTypePhotos: parseHairTypePhotos(business.hair_type_photos),
     services: services.filter((s) => s.active).map(serviceToSalonService),
     gallery: [],
     reviews: [],
@@ -115,6 +121,7 @@ export function draftToSalonProfile(draft: {
       cancellation_cutoff_hours: 24,
       prep_instructions: DEFAULT_PREP_INSTRUCTIONS,
       care_instructions: DEFAULT_AFTERCARE,
+      hair_type_photos: {},
       created_at: "",
     },
     []

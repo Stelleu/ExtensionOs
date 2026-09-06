@@ -9,6 +9,7 @@ import {
   PendingPaymentCard,
   type PendingPaymentBooking,
 } from "@/components/dashboard/PendingPaymentCard";
+import { parseHairTypePhotos } from "@/lib/salon-helpers";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -19,10 +20,14 @@ export default async function DashboardPage() {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, slug, name")
+    .select("id, slug, name, hair_type_photos")
     .eq("owner_id", user.id)
     .single();
   if (!business) redirect("/onboarding");
+
+  const hairTypePhotos = parseHairTypePhotos(
+    (business as { hair_type_photos?: unknown }).hair_type_photos
+  );
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -38,7 +43,7 @@ export default async function DashboardPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent, natural_hair_profile), services(id, name, hair_addon_pricing, requires_hair_addon)"
+      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent, natural_hair_profile), services(id, name, hair_addon_pricing, requires_hair_addon, hair_type_recommendations)"
     )
     .eq("business_id", business.id)
     .gte("appointment_date", today)
@@ -106,7 +111,11 @@ export default async function DashboardPage() {
       </h2>
       <div className="mt-6 grid gap-4">
         {(bookings as AppointmentCardBooking[] | null)?.map((b) => (
-          <AppointmentCard key={b.id} booking={b} />
+          <AppointmentCard
+            key={b.id}
+            booking={b}
+            hairTypePhotos={hairTypePhotos}
+          />
         ))}
         {(!bookings || bookings.length === 0) && (
           <p className="rounded-2xl border border-dashed border-[#E8E0D8] p-8 text-center text-sm text-[#9C8E86]">

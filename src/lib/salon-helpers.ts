@@ -30,7 +30,13 @@ export function parseHairAddonPricing(raw: unknown): HairAddonPriceRow[] {
     if (!length || !texture || Number.isNaN(price)) {
       return [];
     }
-    return [{ length, texture, price }];
+    const imageUrl =
+      typeof r.image_url === "string" && r.image_url.trim()
+        ? r.image_url.trim()
+        : undefined;
+    return imageUrl
+      ? [{ length, texture, price, image_url: imageUrl }]
+      : [{ length, texture, price }];
   });
 }
 
@@ -129,9 +135,7 @@ export const DEFAULT_PREP_INSTRUCTIONS =
   "Please arrive with clean, dry hair. Avoid heavy oils or styling products on the day of your appointment. Bring any inspiration photos you would like to share with your stylist.";
 
 export type HairTextureSubtype =
-  | "1a"
-  | "1b"
-  | "1c"
+  | "1"
   | "2a"
   | "2b"
   | "2c"
@@ -152,23 +156,29 @@ export interface NaturalHairProfile {
   notes?: string;
 }
 
+export const HAIR_TEXTURE_SUBTYPES: HairTextureSubtype[] = [
+  "1",
+  "2a",
+  "2b",
+  "2c",
+  "3a",
+  "3b",
+  "3c",
+  "4a",
+  "4b",
+  "4c",
+];
+
 export const HAIR_TEXTURE_SUBTYPE_GROUPS: {
   family: HairTypeFamily;
   label: string;
   subtypes: HairTextureSubtype[];
 }[] = [
-  { family: "straight", label: "Straight", subtypes: ["1a", "1b", "1c"] },
+  { family: "straight", label: "Straight", subtypes: ["1"] },
   { family: "wavy", label: "Wavy", subtypes: ["2a", "2b", "2c"] },
   { family: "curly", label: "Curly", subtypes: ["3a", "3b", "3c"] },
   { family: "coily", label: "Coily", subtypes: ["4a", "4b", "4c"] },
 ];
-
-const FAMILY_TEXTURE_KEYWORDS: Record<HairTypeFamily, string[]> = {
-  straight: ["straight", "yaki"],
-  wavy: ["body-wavy", "wavy"],
-  curly: ["kinky-curly", "curly"],
-  coily: ["kinky", "coily"],
-};
 
 export function hairTypeFamily(subtype: string): HairTypeFamily | null {
   const bucket = subtype.trim().charAt(0);
@@ -179,45 +189,62 @@ export function hairTypeFamily(subtype: string): HairTypeFamily | null {
   return null;
 }
 
-export interface HairMatchSuggestion {
-  matches: HairAddonPriceRow[];
-  notes: string[];
+/** Safe lookup of stylist-curated texture recommendations for a hair type. */
+export function getRecommendationFor(
+  subtype: string | null | undefined,
+  hairTypeRecommendations: unknown
+): string[] {
+  if (!subtype || typeof subtype !== "string") return [];
+  if (
+    !hairTypeRecommendations ||
+    typeof hairTypeRecommendations !== "object" ||
+    Array.isArray(hairTypeRecommendations)
+  ) {
+    return [];
+  }
+  const raw = (hairTypeRecommendations as Record<string, unknown>)[subtype];
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
 }
 
-export function suggestHairMatch(
-  naturalProfile: Pick<
-    NaturalHairProfile,
-    "textureSubtype" | "thickness" | "chemical_treatment"
-  >,
+export function parseHairTypeRecommendations(
+  raw: unknown
+): Record<string, string[]> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, string[]> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!Array.isArray(value)) continue;
+    const labels = value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+    if (labels.length > 0) out[key] = labels;
+  }
+  return out;
+}
+
+export function parseHairTypePhotos(raw: unknown): Record<string, string> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof value === "string" && value.trim()) {
+      out[key] = value.trim();
+    }
+  }
+  return out;
+}
+
+/** Match pricing rows whose texture appears in a recommendation label list. */
+export function pricingRowsForRecommendations(
+  recommendations: string[],
   hairAddonPricing: HairAddonPriceRow[]
-): HairMatchSuggestion {
-  const notes: string[] = [];
-
-  if (naturalProfile.thickness === "thick") {
-    notes.push(
-      "Thicker natural hair may need more wefts for a balanced, full look."
-    );
-  }
-  if (naturalProfile.chemical_treatment) {
-    notes.push(
-      "Recent chemical treatments can mean using lower heat and a protein treatment before install."
-    );
-  }
-
-  const family = hairTypeFamily(naturalProfile.textureSubtype);
-  if (!family) {
-    return { matches: [], notes };
-  }
-
-  const keywords = FAMILY_TEXTURE_KEYWORDS[family];
-  const matches = hairAddonPricing.filter((row) => {
-    const textureLower = row.texture.toLowerCase();
-    return keywords.some((keyword) =>
-      textureLower.includes(keyword.toLowerCase())
-    );
-  });
-
-  return { matches, notes };
+): HairAddonPriceRow[] {
+  if (recommendations.length === 0) return [];
+  const wanted = new Set(recommendations.map((r) => r.toLowerCase()));
+  return hairAddonPricing.filter((row) =>
+    wanted.has(row.texture.toLowerCase())
+  );
 }
 
 export function formatNaturalHairProfile(profile: NaturalHairProfile): string {

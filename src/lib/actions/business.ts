@@ -55,6 +55,7 @@ export async function createOrUpdateBusiness(input: {
   logo_url?: string | null;
   hero_image_url?: string | null;
   template_id?: string;
+  hair_type_photos?: Record<string, string>;
 }) {
   const { supabase, user } = await requireUser();
   const existing = await getOwnBusiness();
@@ -76,6 +77,9 @@ export async function createOrUpdateBusiness(input: {
         hero_image_url: heroUrl ?? existing.hero_image_url,
         ...(input.template_id != null
           ? { template_id: input.template_id }
+          : {}),
+        ...(input.hair_type_photos != null
+          ? { hair_type_photos: input.hair_type_photos }
           : {}),
       })
       .eq("id", existing.id)
@@ -134,6 +138,7 @@ export async function createService(input: {
   requires_hair_addon: boolean;
   is_extension_service: boolean;
   hair_addon_pricing?: HairAddonPriceRow[];
+  hair_type_recommendations?: Record<string, string[]>;
 }) {
   const { supabase, user } = await requireUser();
   const { data: biz } = await supabase
@@ -162,6 +167,9 @@ export async function createService(input: {
       hair_addon_pricing: input.requires_hair_addon
         ? input.hair_addon_pricing ?? []
         : [],
+      hair_type_recommendations: input.requires_hair_addon
+        ? input.hair_type_recommendations ?? {}
+        : {},
       active: true,
       consultation_form_schema: schema,
     })
@@ -183,6 +191,7 @@ export async function updateService(
     requires_hair_addon: boolean;
     is_extension_service: boolean;
     hair_addon_pricing: HairAddonPriceRow[];
+    hair_type_recommendations: Record<string, string[]>;
     active: boolean;
   }>
 ) {
@@ -686,7 +695,17 @@ export async function uploadBusinessAsset(
   // (not businesses.id). Do not change this to require a business_id without also
   // moving the upload to after createOrUpdateBusiness in onboarding Step 1.
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${user.id}/${kind}-${Date.now()}.${ext}`;
+  const subtype = (formData.get("subtype") as string | null)?.trim();
+
+  let path: string;
+  if (kind === "hair-addons") {
+    path = `${user.id}/hair-addons/${crypto.randomUUID()}.${ext}`;
+  } else if (kind === "hair-types" && subtype) {
+    const safeSubtype = subtype.replace(/[^a-z0-9]/gi, "").toLowerCase();
+    path = `${user.id}/hair-types/${safeSubtype || "type"}.${ext}`;
+  } else {
+    path = `${user.id}/${kind}-${Date.now()}.${ext}`;
+  }
 
   const { error } = await supabase.storage
     .from("business-assets")

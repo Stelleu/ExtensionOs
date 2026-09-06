@@ -25,15 +25,23 @@ export type AppointmentCardBooking = Booking & {
   > | null;
   services: Pick<
     Service,
-    "id" | "name" | "hair_addon_pricing" | "requires_hair_addon"
+    | "id"
+    | "name"
+    | "hair_addon_pricing"
+    | "requires_hair_addon"
+    | "hair_type_recommendations"
   > | null;
 };
 
 interface AppointmentCardProps {
   booking: AppointmentCardBooking;
+  hairTypePhotos?: Record<string, string>;
 }
 
-export function AppointmentCard({ booking }: AppointmentCardProps) {
+export function AppointmentCard({
+  booking,
+  hairTypePhotos = {},
+}: AppointmentCardProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const client = booking.clients;
@@ -114,6 +122,8 @@ export function AppointmentCard({ booking }: AppointmentCardProps) {
               ? parseHairAddonPricing(service.hair_addon_pricing)
               : []
           }
+          hairTypeRecommendations={service?.hair_type_recommendations ?? {}}
+          hairTypePhotos={hairTypePhotos}
         />
       )}
 
