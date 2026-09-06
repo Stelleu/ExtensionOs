@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AvailabilityManager } from "@/components/dashboard/AvailabilityManager";
 import type { Availability, BlockedTime } from "@/types/database";
-import { DEFAULT_CANCELLATION_POLICY } from "@/lib/salon-helpers";
+import { DEFAULT_CANCELLATION_POLICY, DEFAULT_PREP_INSTRUCTIONS, DEFAULT_AFTERCARE } from "@/lib/salon-helpers";
 
 export default async function AvailabilityPage() {
   const supabase = await createClient();
@@ -14,7 +14,7 @@ export default async function AvailabilityPage() {
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "id, minimum_booking_notice_hours, cancellation_policy, payment_link_url, payment_confirmation_window_hours"
+      "id, minimum_booking_notice_hours, cancellation_policy, payment_link_url, payment_confirmation_window_hours, prep_instructions, care_instructions"
     )
     .eq("owner_id", user.id)
     .single();
@@ -45,6 +45,12 @@ export default async function AvailabilityPage() {
       initialPaymentLinkUrl={business.payment_link_url ?? ""}
       initialConfirmationWindowHours={
         business.payment_confirmation_window_hours ?? 4
+      }
+      initialPrepInstructions={
+        business.prep_instructions || DEFAULT_PREP_INSTRUCTIONS
+      }
+      initialCareInstructions={
+        business.care_instructions || DEFAULT_AFTERCARE
       }
     />
   );

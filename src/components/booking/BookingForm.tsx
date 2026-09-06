@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import type { SalonProfile, SalonService } from "@/types/salon";
-import type { HairTexture } from "@/types/database";
 import { formatPrice } from "@/lib/format";
 import {
   formatDateISO,
@@ -12,8 +11,14 @@ import {
   findHairAddonPrice,
   uniqueAddonLengths,
   texturesForLength,
+  type HairTextureSubtype,
+  type HairThickness,
 } from "@/lib/salon-helpers";
 import { createBookingCheckout } from "@/lib/actions/business";
+import {
+  buildNaturalHairProfile,
+  NaturalHairIntake,
+} from "@/components/booking/NaturalHairIntake";
 
 interface BookingFormProps {
   salon: SalonProfile;
@@ -50,10 +55,20 @@ export function BookingForm({ salon }: BookingFormProps) {
   const [healthNotesConsent, setHealthNotesConsent] = useState(false);
   const [wantsHairAddon, setWantsHairAddon] = useState(false);
   const [hairLength, setHairLength] = useState<string>("");
-  const [hairTexture, setHairTexture] = useState<HairTexture>("body-wavy");
+  const [hairTexture, setHairTexture] = useState<string>("body-wavy");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [imageConsent, setImageConsent] = useState(false);
+  const [naturalTextureSubtype, setNaturalTextureSubtype] = useState<
+    HairTextureSubtype | ""
+  >("");
+  const [naturalThickness, setNaturalThickness] = useState<HairThickness | "">(
+    ""
+  );
+  const [naturalChemicalTreatment, setNaturalChemicalTreatment] = useState<
+    boolean | null
+  >(null);
+  const [naturalHairNotes, setNaturalHairNotes] = useState("");
 
   const service = salon.services.find((s) => s.id === serviceId) as
     | SalonService
@@ -108,6 +123,10 @@ export function BookingForm({ salon }: BookingFormProps) {
     setSelectedTime(null);
     setSlots([]);
     setWantsHairAddon(false);
+    setNaturalTextureSubtype("");
+    setNaturalThickness("");
+    setNaturalChemicalTreatment(null);
+    setNaturalHairNotes("");
     const next = salon.services.find((s) => s.id === id);
     const first = next?.hairAddonPricing?.[0];
     if (first) {
@@ -144,6 +163,14 @@ export function BookingForm({ salon }: BookingFormProps) {
         setError("Please select an available hair length and texture.");
         return;
       }
+      if (
+        !naturalTextureSubtype ||
+        !naturalThickness ||
+        naturalChemicalTreatment === null
+      ) {
+        setError("Please tell us about your natural hair.");
+        return;
+      }
     }
 
     setError(null);
@@ -165,6 +192,15 @@ export function BookingForm({ salon }: BookingFormProps) {
           healthNotes: healthNotes.trim() || null,
           healthNotesConsent,
           imageConsent,
+          naturalHairProfile:
+            service.requiresHairAddon && wantsHairAddon
+              ? buildNaturalHairProfile({
+                  textureSubtype: naturalTextureSubtype,
+                  thickness: naturalThickness,
+                  chemicalTreatment: naturalChemicalTreatment,
+                  notes: naturalHairNotes,
+                })
+              : null,
         });
         window.location.href = result.checkoutUrl;
       } catch (err) {
@@ -476,62 +512,78 @@ export function BookingForm({ salon }: BookingFormProps) {
                         : ""}
                     </label>
                     {wantsHairAddon && (
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        <label className="block">
-                          <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-                            Length
-                          </span>
-                          <select
-                            value={hairLength}
-                            onChange={(e) => {
-                              const next = e.target.value;
-                              setHairLength(next);
-                              const textures = texturesForLength(
-                                hairAddonRows,
-                                next
-                              );
-                              if (!textures.includes(hairTexture) && textures[0]) {
-                                setHairTexture(textures[0]);
-                              }
-                            }}
-                            className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
-                          >
-                            {addonLengths.map((l) => (
-                              <option key={l} value={l}>
-                                {l}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className="block">
-                          <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-                            Texture
-                          </span>
-                          <select
-                            value={hairTexture}
-                            onChange={(e) =>
-                              setHairTexture(e.target.value as HairTexture)
-                            }
-                            className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
-                          >
-                            {addonTextures.map((t) => {
-                              const price = findHairAddonPrice(
-                                hairAddonRows,
-                                hairLength,
-                                t
-                              );
-                              return (
-                                <option key={t} value={t}>
-                                  {t}
-                                  {price != null
-                                    ? ` — ${formatPrice(price)}`
-                                    : ""}
+                      <>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
+                              Length
+                            </span>
+                            <select
+                              value={hairLength}
+                              onChange={(e) => {
+                                const next = e.target.value;
+                                setHairLength(next);
+                                const textures = texturesForLength(
+                                  hairAddonRows,
+                                  next
+                                );
+                                if (
+                                  !textures.includes(hairTexture) &&
+                                  textures[0]
+                                ) {
+                                  setHairTexture(textures[0]);
+                                }
+                              }}
+                              className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
+                            >
+                              {addonLengths.map((l) => (
+                                <option key={l} value={l}>
+                                  {l}
                                 </option>
-                              );
-                            })}
-                          </select>
-                        </label>
-                      </div>
+                              ))}
+                            </select>
+                          </label>
+                          <label className="block">
+                            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
+                              Texture
+                            </span>
+                            <select
+                              value={hairTexture}
+                              onChange={(e) =>
+                                setHairTexture(e.target.value)
+                              }
+                              className="w-full rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm"
+                            >
+                              {addonTextures.map((t) => {
+                                const price = findHairAddonPrice(
+                                  hairAddonRows,
+                                  hairLength,
+                                  t
+                                );
+                                return (
+                                  <option key={t} value={t}>
+                                    {t}
+                                    {price != null
+                                      ? ` — ${formatPrice(price)}`
+                                      : ""}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                          </label>
+                        </div>
+                        <NaturalHairIntake
+                          textureSubtype={naturalTextureSubtype}
+                          thickness={naturalThickness}
+                          chemicalTreatment={naturalChemicalTreatment}
+                          notes={naturalHairNotes}
+                          hairAddonPricing={hairAddonRows}
+                          onTextureChange={setNaturalTextureSubtype}
+                          onThicknessChange={setNaturalThickness}
+                          onChemicalTreatmentChange={setNaturalChemicalTreatment}
+                          onNotesChange={setNaturalHairNotes}
+                        />
+                      </>
                     )}
                   </div>
                 )}

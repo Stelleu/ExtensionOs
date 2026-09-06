@@ -25,9 +25,9 @@ export function parseHairAddonPricing(raw: unknown): HairAddonPriceRow[] {
     if (!row || typeof row !== "object") return [];
     const r = row as Record<string, unknown>;
     const length = String(r.length ?? "").trim();
-    const texture = r.texture as HairTexture;
+    const texture = String(r.texture ?? "").trim();
     const price = Number(r.price);
-    if (!length || !HAIR_TEXTURES.includes(texture) || Number.isNaN(price)) {
+    if (!length || !texture || Number.isNaN(price)) {
       return [];
     }
     return [{ length, texture, price }];
@@ -37,7 +37,7 @@ export function parseHairAddonPricing(raw: unknown): HairAddonPriceRow[] {
 export function findHairAddonPrice(
   rows: HairAddonPriceRow[],
   length: string | null | undefined,
-  texture: HairTexture | null | undefined
+  texture: string | null | undefined
 ): number | null {
   if (!length || !texture) return null;
   const match = rows.find((r) => r.length === length && r.texture === texture);
@@ -51,7 +51,7 @@ export function uniqueAddonLengths(rows: HairAddonPriceRow[]): string[] {
 export function texturesForLength(
   rows: HairAddonPriceRow[],
   length: string
-): HairTexture[] {
+): string[] {
   return rows
     .filter((r) => r.length === length)
     .map((r) => r.texture)
@@ -124,6 +124,112 @@ export const DEFAULT_DEPOSIT_POLICY =
 
 export const DEFAULT_AFTERCARE =
   "Avoid oil-based products at the bonds, sleep with hair in a loose braid, and book maintenance every 6–8 weeks for best results.";
+
+export const DEFAULT_PREP_INSTRUCTIONS =
+  "Please arrive with clean, dry hair. Avoid heavy oils or styling products on the day of your appointment. Bring any inspiration photos you would like to share with your stylist.";
+
+export type HairTextureSubtype =
+  | "1a"
+  | "1b"
+  | "1c"
+  | "2a"
+  | "2b"
+  | "2c"
+  | "3a"
+  | "3b"
+  | "3c"
+  | "4a"
+  | "4b"
+  | "4c";
+
+export type HairThickness = "fine" | "medium" | "thick";
+export type HairTypeFamily = "straight" | "wavy" | "curly" | "coily";
+
+export interface NaturalHairProfile {
+  textureSubtype: HairTextureSubtype;
+  thickness: HairThickness;
+  chemical_treatment: boolean;
+  notes?: string;
+}
+
+export const HAIR_TEXTURE_SUBTYPE_GROUPS: {
+  family: HairTypeFamily;
+  label: string;
+  subtypes: HairTextureSubtype[];
+}[] = [
+  { family: "straight", label: "Straight", subtypes: ["1a", "1b", "1c"] },
+  { family: "wavy", label: "Wavy", subtypes: ["2a", "2b", "2c"] },
+  { family: "curly", label: "Curly", subtypes: ["3a", "3b", "3c"] },
+  { family: "coily", label: "Coily", subtypes: ["4a", "4b", "4c"] },
+];
+
+const FAMILY_TEXTURE_KEYWORDS: Record<HairTypeFamily, string[]> = {
+  straight: ["straight", "yaki"],
+  wavy: ["body-wavy", "wavy"],
+  curly: ["kinky-curly", "curly"],
+  coily: ["kinky", "coily"],
+};
+
+export function hairTypeFamily(subtype: string): HairTypeFamily | null {
+  const bucket = subtype.trim().charAt(0);
+  if (bucket === "1") return "straight";
+  if (bucket === "2") return "wavy";
+  if (bucket === "3") return "curly";
+  if (bucket === "4") return "coily";
+  return null;
+}
+
+export interface HairMatchSuggestion {
+  matches: HairAddonPriceRow[];
+  notes: string[];
+}
+
+export function suggestHairMatch(
+  naturalProfile: Pick<
+    NaturalHairProfile,
+    "textureSubtype" | "thickness" | "chemical_treatment"
+  >,
+  hairAddonPricing: HairAddonPriceRow[]
+): HairMatchSuggestion {
+  const notes: string[] = [];
+
+  if (naturalProfile.thickness === "thick") {
+    notes.push(
+      "Thicker natural hair may need more wefts for a balanced, full look."
+    );
+  }
+  if (naturalProfile.chemical_treatment) {
+    notes.push(
+      "Recent chemical treatments can mean using lower heat and a protein treatment before install."
+    );
+  }
+
+  const family = hairTypeFamily(naturalProfile.textureSubtype);
+  if (!family) {
+    return { matches: [], notes };
+  }
+
+  const keywords = FAMILY_TEXTURE_KEYWORDS[family];
+  const matches = hairAddonPricing.filter((row) => {
+    const textureLower = row.texture.toLowerCase();
+    return keywords.some((keyword) =>
+      textureLower.includes(keyword.toLowerCase())
+    );
+  });
+
+  return { matches, notes };
+}
+
+export function formatNaturalHairProfile(profile: NaturalHairProfile): string {
+  const family = hairTypeFamily(profile.textureSubtype);
+  const familyLabel = family
+    ? family.charAt(0).toUpperCase() + family.slice(1)
+    : "Unknown";
+  const chemical = profile.chemical_treatment ? "Yes" : "No";
+  const thickness =
+    profile.thickness.charAt(0).toUpperCase() + profile.thickness.slice(1);
+  return `${profile.textureSubtype.toUpperCase()} (${familyLabel}) · ${thickness} · Chemical treatment: ${chemical}`;
+}
 
 export const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

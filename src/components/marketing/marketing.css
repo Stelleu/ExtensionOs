@@ -1,0 +1,139 @@
+/* Scoped marketing tokens — only active inside .marketing-site */
+.marketing-site {
+  --mkt-bg: #0c0a0f;
+  --mkt-bg-elevated: #141018;
+  --mkt-bg-plum: #1a1224;
+  --mkt-text: #f5f0eb;
+  --mkt-text-muted: #a89b94;
+  --mkt-text-dim: #6b6360;
+  --mkt-accent-start: #d4af37;
+  --mkt-accent-end: #e8b4a0;
+  --mkt-accent-rose: #c9a897;
+  --mkt-glass: rgba(255, 255, 255, 0.05);
+  --mkt-glass-border: rgba(255, 255, 255, 0.08);
+  --mkt-glow: rgba(212, 175, 55, 0.25);
+
+  background-color: var(--mkt-bg);
+  color: var(--mkt-text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.marketing-site .font-display {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+.marketing-gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--mkt-accent-start) 0%,
+    var(--mkt-accent-end) 55%,
+    var(--mkt-accent-rose) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.marketing-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--mkt-accent-start) 0%,
+    var(--mkt-accent-end) 50%,
+    var(--mkt-accent-rose) 100%
+  );
+}
+
+.marketing-glass {
+  background: var(--mkt-glass);
+  border: 1px solid var(--mkt-glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.marketing-glow {
+  box-shadow:
+    0 0 60px -12px var(--mkt-glow),
+    0 0 0 1px var(--mkt-glass-border);
+}
+
+.marketing-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.marketing-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.marketing-shimmer:hover::after {
+  transform: translateX(100%);
+}
+
+@keyframes mkt-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes mkt-pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes mkt-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-animate-float {
+  animation: mkt-float 6s ease-in-out infinite;
+}
+
+.marketing-animate-glow {
+  animation: mkt-pulse-glow 4s ease-in-out infinite;
+}
+
+.marketing-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.marketing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.marketing-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}

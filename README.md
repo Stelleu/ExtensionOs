@@ -1,5 +1,29 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Supabase integration tests & setup checks
+
+These hit a **real** Supabase project (not mocks). Use a dedicated **test/staging** project — do **not** run them against production with real client data.
+
+Required env vars (same names as the app; see `.env.local.example`):
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Load them via `.env.local` or `.env` in the project root.
+
+```bash
+# Fast unit tests only (no network)
+npm test
+
+# Live RPC coverage for get_available_slots (inserts/deletes scoped fixtures)
+npm run test:integration
+
+# Schema / cron / storage checklist (exits non-zero on failure)
+npm run verify:setup
+```
+
+For full `verify:setup` coverage (including `information_schema` defaults, `bookings.hair_texture` type, and `cron.job` names), apply `supabase/migrations/005_verify_setup_checks.sql` in the Supabase SQL editor. Without it, the script still probes columns and the `business-assets` bucket via the service role, but cron/default/type checks need that RPC.
+
 ## Getting Started
 
 First, run the development server:

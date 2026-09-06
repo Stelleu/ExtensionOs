@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter, Geist } from "next/font/google";
+import { Playfair_Display, Inter, Geist, Cormorant_Garamond, Nunito } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,20 @@ const inter = Inter({
   display: "swap",
 });
 
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "HairBoss AI — Salon websites for extension specialists",
   description:
@@ -31,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", playfair.variable, inter.variable, "font-sans", geist.variable)}
+      className={cn("h-full", "antialiased", playfair.variable, inter.variable, cormorant.variable, nunito.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full font-sans">{children}</body>
     </html>

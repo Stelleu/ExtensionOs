@@ -4,15 +4,29 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Booking, Client, Service } from "@/types/database";
 import { formatPrice } from "@/lib/format";
-import { formatDisplayDate, formatSlotLabel } from "@/lib/salon-helpers";
+import {
+  formatDisplayDate,
+  formatSlotLabel,
+  parseHairAddonPricing,
+} from "@/lib/salon-helpers";
 import { updateBookingStatus } from "@/lib/actions/business";
+import { NaturalHairProfileSection } from "@/components/dashboard/NaturalHairProfileSection";
 
 export type AppointmentCardBooking = Booking & {
   clients: Pick<
     Client,
-    "id" | "name" | "visit_count" | "health_notes" | "health_notes_consent" | "image_consent"
+    | "id"
+    | "name"
+    | "visit_count"
+    | "health_notes"
+    | "health_notes_consent"
+    | "image_consent"
+    | "natural_hair_profile"
   > | null;
-  services: Pick<Service, "id" | "name"> | null;
+  services: Pick<
+    Service,
+    "id" | "name" | "hair_addon_pricing" | "requires_hair_addon"
+  > | null;
 };
 
 interface AppointmentCardProps {
@@ -90,6 +104,17 @@ export function AppointmentCard({ booking }: AppointmentCardProps) {
           </p>
           <p className="mt-1">{client.health_notes}</p>
         </div>
+      )}
+
+      {booking.wants_hair_addon && client?.natural_hair_profile && (
+        <NaturalHairProfileSection
+          profile={client.natural_hair_profile}
+          hairAddonPricing={
+            service?.requires_hair_addon
+              ? parseHairAddonPricing(service.hair_addon_pricing)
+              : []
+          }
+        />
       )}
 
       <div className="mt-4 flex flex-wrap gap-2">

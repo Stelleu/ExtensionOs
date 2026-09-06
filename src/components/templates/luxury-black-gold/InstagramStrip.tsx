@@ -5,7 +5,8 @@ interface InstagramStripProps {
 }
 
 export function InstagramStrip({ salon }: InstagramStripProps) {
-  const handle = salon.instagram.replace("@", "");
+  const handle = (salon.instagram ?? "").trim().replace(/^@/, "");
+  if (!handle) return null;
 
   return (
     <section className="border-y border-[#E8E0D8] bg-white py-10">

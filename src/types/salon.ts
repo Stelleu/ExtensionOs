@@ -1,6 +1,6 @@
 import type { HairAddonPriceRow } from "@/types/database";
 
-export type TemplateId = "luxury-black-gold" | "beige-minimal" | "glam-pink";
+export type TemplateId = "luxury-black-gold" | "soft-editorial" | "bold-afro";
 
 export interface SalonTheme {
   id: TemplateId;

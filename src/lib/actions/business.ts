@@ -14,7 +14,7 @@ import type {
   BookingStatus,
   CancelledReason,
   HairAddonPriceRow,
-  HairTexture,
+  NaturalHairProfile,
 } from "@/types/database";
 import { revalidatePath } from "next/cache";
 
@@ -74,12 +74,16 @@ export async function createOrUpdateBusiness(input: {
         email: emptyToNull(input.email) ?? user.email ?? null,
         logo_url: logoUrl ?? existing.logo_url,
         hero_image_url: heroUrl ?? existing.hero_image_url,
+        ...(input.template_id != null
+          ? { template_id: input.template_id }
+          : {}),
       })
       .eq("id", existing.id)
       .select()
       .single();
     if (error) throw new Error(error.message);
     revalidatePath("/dashboard/settings");
+    if (existing.slug) revalidatePath(`/${existing.slug}`);
     return data;
   }
 
@@ -270,6 +274,8 @@ export async function updateBookingSettings(input: {
   cancellation_policy: string;
   payment_link_url?: string | null;
   payment_confirmation_window_hours: number;
+  prep_instructions?: string;
+  care_instructions?: string;
 }) {
   const { supabase, user } = await requireUser();
   const allowedNotice = [0, 12, 24, 48];
@@ -283,6 +289,15 @@ export async function updateBookingSettings(input: {
   const policy = input.cancellation_policy.trim();
   if (!policy) throw new Error("Cancellation policy cannot be empty");
 
+  const prepInstructions = input.prep_instructions?.trim();
+  const careInstructions = input.care_instructions?.trim();
+  if (prepInstructions !== undefined && !prepInstructions) {
+    throw new Error("Prep instructions cannot be empty");
+  }
+  if (careInstructions !== undefined && !careInstructions) {
+    throw new Error("Care instructions cannot be empty");
+  }
+
   const paymentLink = input.payment_link_url?.trim() || null;
 
   const { data, error } = await supabase
@@ -292,6 +307,12 @@ export async function updateBookingSettings(input: {
       cancellation_policy: policy,
       payment_link_url: paymentLink,
       payment_confirmation_window_hours: input.payment_confirmation_window_hours,
+      ...(prepInstructions !== undefined
+        ? { prep_instructions: prepInstructions }
+        : {}),
+      ...(careInstructions !== undefined
+        ? { care_instructions: careInstructions }
+        : {}),
     })
     .eq("id", input.business_id)
     .eq("owner_id", user.id)
@@ -404,10 +425,11 @@ export interface CreateBookingInput {
   clientPhone: string;
   wantsHairAddon: boolean;
   hairLength?: string | null;
-  hairTexture?: HairTexture | null;
+  hairTexture?: string | null;
   healthNotes?: string | null;
   healthNotesConsent: boolean;
   imageConsent: boolean;
+  naturalHairProfile?: NaturalHairProfile | null;
 }
 
 export async function createBookingCheckout(input: CreateBookingInput) {
@@ -428,7 +450,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
 
   const { data: business } = await admin
     .from("businesses")
-    .select("id, name, slug")
+    .select("id, name, slug, payment_confirmation_window_hours")
     .eq("id", input.businessId)
     .single();
   if (!business) throw new Error("Business not found");
@@ -467,6 +489,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
         health_notes: healthNotes,
         health_notes_consent: input.healthNotesConsent,
         image_consent: input.imageConsent,
+        natural_hair_profile: input.naturalHairProfile ?? null,
       })
       .eq("id", existingClient.id)
       .select("id")
@@ -484,6 +507,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
         health_notes: healthNotes,
         health_notes_consent: input.healthNotesConsent,
         image_consent: input.imageConsent,
+        natural_hair_profile: input.naturalHairProfile ?? null,
       })
       .select("id")
       .single();
@@ -508,6 +532,10 @@ export async function createBookingCheckout(input: CreateBookingInput) {
   const servicePrice = Number(service.base_price);
   const totalPrice = servicePrice + hairAddonPrice;
   const depositAmount = Number(service.deposit_amount);
+  const windowHours = business.payment_confirmation_window_hours ?? 4;
+  const confirmationDeadline = new Date(
+    Date.now() + windowHours * 60 * 60 * 1000
+  ).toISOString();
 
   const { data: booking, error: bookingError } = await admin
     .from("bookings")
@@ -526,6 +554,7 @@ export async function createBookingCheckout(input: CreateBookingInput) {
       deposit_amount: depositAmount,
       deposit_paid: false,
       status: "pending_payment",
+      confirmation_deadline: confirmationDeadline,
     })
     .select()
     .single();
@@ -565,11 +594,13 @@ export async function updateBookingStatus(
 
   const { data: ownedBooking } = await supabase
     .from("bookings")
-    .select("id")
+    .select("id, status")
     .eq("id", bookingId)
     .eq("business_id", own.id)
     .maybeSingle();
   if (!ownedBooking) throw new Error("Booking not found");
+
+  const previousStatus = ownedBooking.status;
 
   const { error } = await supabase
     .from("bookings")
@@ -581,6 +612,10 @@ export async function updateBookingStatus(
     })
     .eq("id", bookingId);
   if (error) throw new Error(error.message);
+
+  if (status === "completed" && previousStatus !== "completed") {
+    void invokeEdgeFunction("send-aftercare-email", { booking_id: bookingId });
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/bookings");
@@ -647,6 +682,9 @@ export async function uploadBusinessAsset(
 
   await ensureBusinessAssetsBucket();
 
+  // Safe before businesses row exists: Storage path is scoped to auth user.id only
+  // (not businesses.id). Do not change this to require a business_id without also
+  // moving the upload to after createOrUpdateBusiness in onboarding Step 1.
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const path = `${user.id}/${kind}-${Date.now()}.${ext}`;
 

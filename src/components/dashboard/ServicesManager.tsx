@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createService, updateService } from "@/lib/actions/business";
-import type { HairAddonPriceRow, Service } from "@/types/database";
+import type { HairAddonPriceEntry, Service } from "@/types/database";
 import { formatPrice } from "@/lib/format";
 import {
   DEFAULT_HAIR_ADDON_PRICING,
@@ -18,7 +18,7 @@ const emptyForm = {
   duration_minutes: 120,
   requires_hair_addon: false,
   is_extension_service: true,
-  hair_addon_pricing: [] as HairAddonPriceRow[],
+  hair_addon_pricing: [] as HairAddonPriceEntry[],
 };
 
 export function ServicesManager({
@@ -169,9 +169,9 @@ function ServiceFields({
       {form.requires_hair_addon && (
         <HairAddonPricingEditor
           rows={form.hair_addon_pricing}
-          onChange={(hair_addon_pricing) =>
-            setForm({ ...form, hair_addon_pricing })
-          }
+            onChange={(hair_addon_pricing: HairAddonPriceEntry[]) =>
+              setForm({ ...form, hair_addon_pricing })
+            }
         />
       )}
       <label className="flex gap-2 text-sm">

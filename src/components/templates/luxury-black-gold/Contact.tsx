@@ -5,6 +5,11 @@ interface ContactProps {
 }
 
 export function Contact({ salon }: ContactProps) {
+  const phone = salon.phone?.trim() ?? "";
+  const email = salon.email?.trim() ?? "";
+  const instagram = salon.instagram?.trim() ?? "";
+  const instagramHandle = instagram.replace(/^@/, "");
+
   return (
     <section id="contact" className="bg-[#1A1614] py-24 text-white lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
@@ -29,12 +34,24 @@ export function Contact({ salon }: ContactProps) {
 
           <div className="grid gap-6 sm:grid-cols-2">
             <ContactCard label="Location" value={salon.address} />
-            <ContactCard label="Email" value={salon.email} href={`mailto:${salon.email}`} />
-            <ContactCard label="Phone" value={salon.phone} href={`tel:${salon.phone.replace(/\s/g, "")}`} />
+            <ContactCard
+              label="Email"
+              value={email}
+              href={email ? `mailto:${email}` : undefined}
+            />
+            <ContactCard
+              label="Phone"
+              value={phone}
+              href={phone ? `tel:${phone.replace(/\s/g, "")}` : undefined}
+            />
             <ContactCard
               label="Instagram"
-              value={salon.instagram}
-              href={`https://instagram.com/${salon.instagram.replace("@", "")}`}
+              value={instagram}
+              href={
+                instagramHandle
+                  ? `https://instagram.com/${instagramHandle}`
+                  : undefined
+              }
             />
           </div>
         </div>
@@ -52,17 +69,26 @@ function ContactCard({
   value: string;
   href?: string;
 }) {
-  const inner = href ? (
-    <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="mt-2 block text-lg text-white transition-colors hover:text-[#B8956E]">
-      {value}
-    </a>
-  ) : (
-    <p className="mt-2 text-lg text-white">{value}</p>
-  );
+  const display = value?.trim() ? value : "—";
+  const inner =
+    href && value?.trim() ? (
+      <a
+        href={href}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel="noopener noreferrer"
+        className="mt-2 block text-lg text-white transition-colors hover:text-[#B8956E]"
+      >
+        {display}
+      </a>
+    ) : (
+      <p className="mt-2 text-lg text-white">{display}</p>
+    );
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white/40">{label}</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white/40">
+        {label}
+      </p>
       {inner}
     </div>
   );

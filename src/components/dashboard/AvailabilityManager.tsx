@@ -10,6 +10,8 @@ import {
 } from "@/lib/actions/business";
 import {
   DEFAULT_CANCELLATION_POLICY,
+  DEFAULT_PREP_INSTRUCTIONS,
+  DEFAULT_AFTERCARE,
   formatDisplayDate,
   rowsToSchedule,
   scheduleToRows,
@@ -37,6 +39,8 @@ export function AvailabilityManager({
   initialCancellationPolicy,
   initialPaymentLinkUrl,
   initialConfirmationWindowHours,
+  initialPrepInstructions,
+  initialCareInstructions,
 }: {
   businessId: string;
   initialAvailability: Availability[];
@@ -45,6 +49,8 @@ export function AvailabilityManager({
   initialCancellationPolicy: string;
   initialPaymentLinkUrl: string;
   initialConfirmationWindowHours: number;
+  initialPrepInstructions: string;
+  initialCareInstructions: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -60,6 +66,12 @@ export function AvailabilityManager({
   const [paymentLinkUrl, setPaymentLinkUrl] = useState(initialPaymentLinkUrl ?? "");
   const [confirmationWindowHours, setConfirmationWindowHours] = useState(
     initialConfirmationWindowHours ?? 4
+  );
+  const [prepInstructions, setPrepInstructions] = useState(
+    initialPrepInstructions || DEFAULT_PREP_INSTRUCTIONS
+  );
+  const [careInstructions, setCareInstructions] = useState(
+    initialCareInstructions || DEFAULT_AFTERCARE
   );
 
   const [blockDate, setBlockDate] = useState("");
@@ -82,6 +94,8 @@ export function AvailabilityManager({
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
+          prep_instructions: prepInstructions,
+          care_instructions: careInstructions,
         });
         setSaved(true);
         router.refresh();
@@ -152,10 +166,14 @@ export function AvailabilityManager({
           cancellationPolicy={cancellationPolicy}
           paymentLinkUrl={paymentLinkUrl}
           confirmationWindowHours={confirmationWindowHours}
+          prepInstructions={prepInstructions}
+          careInstructions={careInstructions}
           onNoticeChange={setNoticeHours}
           onPolicyChange={setCancellationPolicy}
           onPaymentLinkChange={setPaymentLinkUrl}
           onConfirmationWindowChange={setConfirmationWindowHours}
+          onPrepInstructionsChange={setPrepInstructions}
+          onCareInstructionsChange={setCareInstructions}
         />
         <button
           type="submit"

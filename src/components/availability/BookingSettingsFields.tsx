@@ -3,6 +3,8 @@
 import {
   NOTICE_HOUR_OPTIONS,
   PAYMENT_CONFIRMATION_WINDOW_OPTIONS,
+  DEFAULT_PREP_INSTRUCTIONS,
+  DEFAULT_AFTERCARE,
 } from "@/lib/salon-helpers";
 
 interface BookingSettingsFieldsProps {
@@ -10,10 +12,14 @@ interface BookingSettingsFieldsProps {
   cancellationPolicy: string;
   paymentLinkUrl: string;
   confirmationWindowHours: number;
+  prepInstructions: string;
+  careInstructions: string;
   onNoticeChange: (hours: number) => void;
   onPolicyChange: (policy: string) => void;
   onPaymentLinkChange: (url: string) => void;
   onConfirmationWindowChange: (hours: number) => void;
+  onPrepInstructionsChange: (value: string) => void;
+  onCareInstructionsChange: (value: string) => void;
 }
 
 export function BookingSettingsFields({
@@ -21,10 +27,14 @@ export function BookingSettingsFields({
   cancellationPolicy,
   paymentLinkUrl,
   confirmationWindowHours,
+  prepInstructions,
+  careInstructions,
   onNoticeChange,
   onPolicyChange,
   onPaymentLinkChange,
   onConfirmationWindowChange,
+  onPrepInstructionsChange,
+  onCareInstructionsChange,
 }: BookingSettingsFieldsProps) {
   return (
     <div className="space-y-4">
@@ -97,6 +107,40 @@ export function BookingSettingsFields({
         <p className="mt-2 text-xs text-[#9C8E86]">
           How long clients&apos; bookings stay reserved while you confirm
           you&apos;ve received their deposit.
+        </p>
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+          Prep instructions (sent at booking confirmation)
+        </span>
+        <textarea
+          value={prepInstructions}
+          onChange={(e) => onPrepInstructionsChange(e.target.value)}
+          rows={4}
+          placeholder={DEFAULT_PREP_INSTRUCTIONS}
+          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+        />
+        <p className="mt-2 text-xs text-[#9C8E86]">
+          Included in the client confirmation email under &quot;Before your
+          appointment&quot;.
+        </p>
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+          Aftercare instructions (sent when appointment is completed)
+        </span>
+        <textarea
+          value={careInstructions}
+          onChange={(e) => onCareInstructionsChange(e.target.value)}
+          rows={4}
+          placeholder={DEFAULT_AFTERCARE}
+          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+        />
+        <p className="mt-2 text-xs text-[#9C8E86]">
+          Sent immediately after you mark an appointment completed — separate
+          from the 6-week maintenance reminder.
         </p>
       </label>
     </div>

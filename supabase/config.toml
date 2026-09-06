@@ -1,0 +1,19 @@
+# Supabase local/dev config — Edge Functions
+
+[functions.notify-stylist]
+verify_jwt = true
+
+[functions.confirm-booking]
+verify_jwt = false
+
+[functions.send-maintenance-reminders]
+verify_jwt = true
+
+[functions.cancel-booking]
+verify_jwt = false
+
+[functions.notify-expired-booking]
+verify_jwt = true
+
+[functions.send-aftercare-email]
+verify_jwt = true

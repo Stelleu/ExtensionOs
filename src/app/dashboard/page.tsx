@@ -38,7 +38,7 @@ export default async function DashboardPage() {
   const { data: bookings } = await supabase
     .from("bookings")
     .select(
-      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent), services(id, name)"
+      "*, clients(id, name, visit_count, health_notes, health_notes_consent, image_consent, natural_hair_profile), services(id, name, hair_addon_pricing, requires_hair_addon)"
     )
     .eq("business_id", business.id)
     .gte("appointment_date", today)

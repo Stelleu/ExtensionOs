@@ -25,11 +25,14 @@ export type CancelledReason =
   | "client_requested"
   | "stylist_cancelled";
 
-export interface HairAddonPriceRow {
+export interface HairAddonPriceEntry {
   length: string;
-  texture: HairTexture;
+  texture: string;
   price: number;
 }
+
+/** @deprecated Use HairAddonPriceEntry */
+export type HairAddonPriceRow = HairAddonPriceEntry;
 
 export interface ConsultationFormField {
   id: string;
@@ -43,6 +46,25 @@ export interface ConsultationFormSchema {
   title: string;
   serviceType: "extensions" | "wig" | "color" | "general";
   fields: ConsultationFormField[];
+}
+
+export interface NaturalHairProfile {
+  textureSubtype:
+    | "1a"
+    | "1b"
+    | "1c"
+    | "2a"
+    | "2b"
+    | "2c"
+    | "3a"
+    | "3b"
+    | "3c"
+    | "4a"
+    | "4b"
+    | "4c";
+  thickness: "fine" | "medium" | "thick";
+  chemical_treatment: boolean;
+  notes?: string;
 }
 
 export interface Business {
@@ -65,6 +87,8 @@ export interface Business {
   payment_confirmation_window_hours: number;
   maintenance_reminder_days_before: number;
   cancellation_cutoff_hours: number;
+  prep_instructions: string;
+  care_instructions: string;
   created_at: string;
 }
 
@@ -93,6 +117,7 @@ export interface Client {
   health_notes: string | null;
   health_notes_consent: boolean;
   image_consent: boolean;
+  natural_hair_profile: NaturalHairProfile | null;
   created_at: string;
 }
 
@@ -105,7 +130,7 @@ export interface Booking {
   appointment_time: string;
   wants_hair_addon: boolean;
   hair_length: string | null;
-  hair_texture: HairTexture | null;
+  hair_texture: string | null;
   hair_addon_price: number;
   service_price: number;
   total_price: number;
@@ -208,7 +233,6 @@ export type Database = {
     };
     Enums: {
       booking_status: BookingStatus;
-      hair_texture: HairTexture;
     };
     CompositeTypes: Record<string, never>;
   };

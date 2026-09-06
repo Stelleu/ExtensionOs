@@ -11,16 +11,20 @@ import {
 import {
   DEFAULT_CANCELLATION_POLICY,
   DEFAULT_HAIR_ADDON_PRICING,
+  DEFAULT_PREP_INSTRUCTIONS,
+  DEFAULT_AFTERCARE,
   defaultWeekSchedule,
   scheduleToRows,
   type DayAvailability,
 } from "@/lib/salon-helpers";
 import { HairAddonPricingEditor } from "@/components/services/HairAddonPricingEditor";
-import type { HairAddonPriceRow } from "@/types/database";
+import type { HairAddonPriceEntry } from "@/types/database";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
 import { BookingSettingsFields } from "@/components/availability/BookingSettingsFields";
 import { OnboardingSitePreview } from "@/components/onboarding/OnboardingSitePreview";
+import { ThemePicker } from "@/components/templates/ThemePicker";
 import { draftToSalonProfile } from "@/lib/mappers";
+import type { TemplateId } from "@/types/salon";
 import Link from "next/link";
 
 type Step = 1 | 2 | 3 | 4;
@@ -42,6 +46,7 @@ export function OnboardingWizard() {
     location: "",
     logo_url: "" as string | null,
     hero_image_url: "" as string | null,
+    template_id: "luxury-black-gold" as TemplateId,
   });
 
   const [service, setService] = useState({
@@ -51,7 +56,7 @@ export function OnboardingWizard() {
     duration_minutes: 180,
     requires_hair_addon: true,
     is_extension_service: true,
-    hair_addon_pricing: DEFAULT_HAIR_ADDON_PRICING as HairAddonPriceRow[],
+    hair_addon_pricing: DEFAULT_HAIR_ADDON_PRICING as HairAddonPriceEntry[],
   });
 
   const [schedule, setSchedule] = useState<DayAvailability[]>(defaultWeekSchedule);
@@ -61,6 +66,10 @@ export function OnboardingWizard() {
   );
   const [paymentLinkUrl, setPaymentLinkUrl] = useState("");
   const [confirmationWindowHours, setConfirmationWindowHours] = useState(4);
+  const [prepInstructions, setPrepInstructions] = useState(
+    DEFAULT_PREP_INSTRUCTIONS
+  );
+  const [careInstructions, setCareInstructions] = useState(DEFAULT_AFTERCARE);
   const [businessSlug, setBusinessSlug] = useState<string | null>(null);
   const [setupReady, setSetupReady] = useState(false);
   const [step1Panel, setStep1Panel] = useState<"edit" | "preview">("edit");
@@ -79,6 +88,7 @@ export function OnboardingWizard() {
         ...profile,
         logo_url: localPreview.logo || profile.logo_url,
         hero_image_url: localPreview.hero || profile.hero_image_url,
+        template_id: profile.template_id,
       }),
     [profile, localPreview]
   );
@@ -105,6 +115,8 @@ export function OnboardingWizard() {
   }
 
   async function uploadPendingImage(file: File, kind: "logo" | "hero") {
+    // Upload may run before the businesses row is inserted; uploadBusinessAsset
+    // keys files by user.id, so that ordering is intentional and safe.
     const fd = new FormData();
     fd.set("file", file);
     fd.set("kind", kind);
@@ -128,7 +140,10 @@ export function OnboardingWizard() {
           );
         }
         setProfile(nextProfile);
-        const biz = await createOrUpdateBusiness(nextProfile);
+        const biz = await createOrUpdateBusiness({
+          ...nextProfile,
+          template_id: nextProfile.template_id,
+        });
         setBusinessId(biz.id);
         setBusinessSlug(biz.slug);
         if (typeof biz.minimum_booking_notice_hours === "number") {
@@ -142,6 +157,12 @@ export function OnboardingWizard() {
         }
         if (typeof biz.payment_confirmation_window_hours === "number") {
           setConfirmationWindowHours(biz.payment_confirmation_window_hours);
+        }
+        if (biz.prep_instructions) {
+          setPrepInstructions(biz.prep_instructions);
+        }
+        if (biz.care_instructions) {
+          setCareInstructions(biz.care_instructions);
         }
         setStep(2);
       } catch (err) {
@@ -195,6 +216,8 @@ export function OnboardingWizard() {
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
+          prep_instructions: prepInstructions,
+          care_instructions: careInstructions,
         });
         setStep(4);
         runGenerating();
@@ -219,6 +242,8 @@ export function OnboardingWizard() {
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
+          prep_instructions: prepInstructions,
+          care_instructions: careInstructions,
         });
         setStep(4);
         runGenerating();
@@ -352,6 +377,12 @@ export function OnboardingWizard() {
               onChange={(v) => setProfile({ ...profile, location: v })}
               placeholder="Shoreditch, London"
             />
+            <ThemePicker
+              value={profile.template_id}
+              onChange={(template_id) =>
+                setProfile({ ...profile, template_id })
+              }
+            />
             <div className="grid gap-4 sm:grid-cols-2">
               <FileField
                 label="Logo"
@@ -428,7 +459,7 @@ export function OnboardingWizard() {
           {service.requires_hair_addon && (
             <HairAddonPricingEditor
               rows={service.hair_addon_pricing}
-              onChange={(hair_addon_pricing) =>
+              onChange={(hair_addon_pricing: HairAddonPriceEntry[]) =>
                 setService({ ...service, hair_addon_pricing })
               }
             />
@@ -475,10 +506,14 @@ export function OnboardingWizard() {
             cancellationPolicy={cancellationPolicy}
             paymentLinkUrl={paymentLinkUrl}
             confirmationWindowHours={confirmationWindowHours}
+            prepInstructions={prepInstructions}
+            careInstructions={careInstructions}
             onNoticeChange={setNoticeHours}
             onPolicyChange={setCancellationPolicy}
             onPaymentLinkChange={setPaymentLinkUrl}
             onConfirmationWindowChange={setConfirmationWindowHours}
+            onPrepInstructionsChange={setPrepInstructions}
+            onCareInstructionsChange={setCareInstructions}
           />
 
           <div className="flex flex-col gap-3 sm:flex-row">

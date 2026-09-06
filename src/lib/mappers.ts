@@ -1,9 +1,11 @@
 import type { Business, Service } from "@/types/database";
 import type { SalonProfile, SalonService, TemplateId } from "@/types/salon";
+import { normalizeTemplateId } from "@/lib/templates";
 import {
   DEFAULT_AFTERCARE,
   DEFAULT_CANCELLATION_POLICY,
   DEFAULT_DEPOSIT_POLICY,
+  DEFAULT_PREP_INSTRUCTIONS,
   formatDurationLabel,
   parseHairAddonPricing,
 } from "@/lib/salon-helpers";
@@ -37,7 +39,7 @@ export function businessToSalonProfile(
   return {
     id: business.id,
     slug: business.slug,
-    templateId: (business.template_id as TemplateId) || "luxury-black-gold",
+    templateId: normalizeTemplateId(business.template_id),
     businessName: business.name,
     tagline: business.tagline || "",
     city: business.location || "",
@@ -88,6 +90,7 @@ export function draftToSalonProfile(draft: {
   location: string;
   logo_url: string | null;
   hero_image_url: string | null;
+  template_id?: string;
 }): SalonProfile {
   return businessToSalonProfile(
     {
@@ -99,7 +102,7 @@ export function draftToSalonProfile(draft: {
       bio: draft.bio || null,
       logo_url: draft.logo_url,
       hero_image_url: draft.hero_image_url,
-      template_id: "luxury-black-gold",
+      template_id: draft.template_id ?? "luxury-black-gold",
       instagram: draft.instagram || null,
       email: draft.email || null,
       phone: draft.phone || null,
@@ -110,6 +113,8 @@ export function draftToSalonProfile(draft: {
       payment_confirmation_window_hours: 4,
       maintenance_reminder_days_before: 3,
       cancellation_cutoff_hours: 24,
+      prep_instructions: DEFAULT_PREP_INSTRUCTIONS,
+      care_instructions: DEFAULT_AFTERCARE,
       created_at: "",
     },
     []
