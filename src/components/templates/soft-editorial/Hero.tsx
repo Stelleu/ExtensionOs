@@ -8,7 +8,7 @@ interface HeroProps {
 export function Hero({ salon }: HeroProps) {
   return (
     <section className="relative overflow-hidden pt-32 lg:pt-40">
-      <div className="mx-auto max-w-6xl px-8 pb-20 lg:px-12 lg:pb-28">
+      <div className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 lg:px-12 lg:pb-28">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
             {salon.city}
@@ -17,7 +17,7 @@ export function Hero({ salon }: HeroProps) {
             {salon.tagline || salon.businessName}
           </h1>
           <p className="mx-auto mt-8 max-w-lg text-base leading-relaxed text-[#7A726A]">
-            Refined extension artistry with an editorial eye — effortless,
+            Refined extension artistry with an editorial eye, effortless,
             natural, and unmistakably you.
           </p>
           <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row">

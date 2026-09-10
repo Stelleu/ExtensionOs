@@ -26,7 +26,7 @@ export function Footer({ salon }: FooterProps) {
           </p>
 
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#E8A849]/60">
-            Powered by HairBoss AI
+            Powered by ExtensionOS
           </p>
         </div>
       </div>

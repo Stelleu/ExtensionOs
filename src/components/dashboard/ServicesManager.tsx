@@ -61,9 +61,9 @@ export function ServicesManager({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-4xl text-[#1A1614]">Services</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="font-serif text-3xl text-[#1A1614] sm:text-4xl">Services</h1>
           <p className="mt-2 text-sm text-[#6B5E58]">
             Consultation forms are auto-generated on create/update.
           </p>
@@ -71,7 +71,7 @@ export function ServicesManager({
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="rounded-full bg-[#1A1614] px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-white"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full bg-[#1A1614] px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-white"
         >
           {showForm ? "Cancel" : "Add service"}
         </button>
@@ -80,7 +80,7 @@ export function ServicesManager({
       {showForm && (
         <form
           onSubmit={onCreate}
-          className="mt-6 space-y-3 rounded-2xl bg-white p-6 ring-1 ring-[#1A1614]/5"
+          className="mt-6 min-w-0 space-y-3 overflow-hidden rounded-2xl bg-white p-4 ring-1 ring-[#1A1614]/5 sm:p-6"
         >
           <ServiceFields form={form} setForm={setForm} />
           <button
@@ -118,43 +118,46 @@ function ServiceFields({
         onChange={(e) => setForm({ ...form, name: e.target.value })}
         className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm"
       />
-      <div className="grid grid-cols-3 gap-3">
-        <label className="block">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <label className="block min-w-0">
           <span className="mb-1 block text-xs text-[#9C8E86]">Price (£)</span>
           <input
             type="number"
+            inputMode="decimal"
             min={0}
             value={form.base_price}
             onChange={(e) =>
               setForm({ ...form, base_price: Number(e.target.value) })
             }
-            className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-base sm:text-sm"
           />
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className="mb-1 block text-xs text-[#9C8E86]">Deposit (£)</span>
           <input
             type="number"
+            inputMode="decimal"
             min={0}
             value={form.deposit_amount}
             onChange={(e) =>
               setForm({ ...form, deposit_amount: Number(e.target.value) })
             }
-            className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-base sm:text-sm"
           />
         </label>
-        <label className="block">
+        <label className="block min-w-0">
           <span className="mb-1 block text-xs text-[#9C8E86]">
             Duration (min)
           </span>
           <input
             type="number"
+            inputMode="numeric"
             min={15}
             value={form.duration_minutes}
             onChange={(e) =>
               setForm({ ...form, duration_minutes: Number(e.target.value) })
             }
-            className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-base sm:text-sm"
           />
         </label>
       </div>

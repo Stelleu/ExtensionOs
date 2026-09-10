@@ -43,7 +43,7 @@ export function MarketingHero() {
             <span className="marketing-gradient-text italic">
               consultation flow
             </span>{" "}
-            — in one place
+            in one place
           </h1>
         </ScrollReveal>
 
@@ -51,7 +51,7 @@ export function MarketingHero() {
           <p className="mt-8 max-w-xl text-lg leading-relaxed text-[var(--mkt-text-muted)]">
             {MARKETING_CONFIG.productName} is the platform built specifically for
             hair-extension stylists. Live booking, automatic client profiles,
-            hair-texture matching, and maintenance reminders — without the
+            hair-texture matching, and maintenance reminders without the
             generic salon software bloat.
           </p>
         </ScrollReveal>

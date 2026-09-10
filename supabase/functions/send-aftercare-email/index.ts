@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
         },
       ],
       footer:
-        "This is general guidance — your stylist can personalise aftercare at your next visit.",
+        "This is general guidance your stylist can personalise aftercare at your next visit.",
     });
 
     return new Response(JSON.stringify({ ok: true, booking_id }), {

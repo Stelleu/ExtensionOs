@@ -12,7 +12,7 @@ export function Contact({ salon }: ContactProps) {
 
   return (
     <section id="contact" className="border-t border-[#E5DDD4] py-28 lg:py-36">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="grid gap-16 lg:grid-cols-2">
           <div>
             <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
@@ -86,7 +86,7 @@ function ContactRow({
     );
 
   return (
-    <div className="grid grid-cols-[120px_1fr] gap-4 py-6">
+    <div className="grid grid-cols-1 gap-2 py-6 sm:grid-cols-[120px_1fr] sm:gap-4">
       <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9C9088]">
         {label}
       </p>

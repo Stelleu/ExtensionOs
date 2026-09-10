@@ -19,7 +19,7 @@ export function Services({ salon }: ServicesProps) {
             </h2>
           </div>
           <p className="max-w-xs text-sm text-[#6B5E58]">
-            Transparent pricing. Secure your slot with a deposit — no more
+            Transparent pricing. Secure your slot with a deposit, no more
             no-shows.
           </p>
         </div>

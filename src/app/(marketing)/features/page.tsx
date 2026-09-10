@@ -8,7 +8,7 @@ import { ScrollReveal } from "@/components/marketing/ScrollReveal";
 export const metadata: Metadata = {
   title: "Features — ExtensionOS",
   description:
-    "Hair-texture consultation, automatic CRM, maintenance reminders, and premium booking themes — built for extension specialists.",
+    "Hair-texture consultation, automatic CRM, maintenance reminders, and premium booking themes built for extension specialists.",
 };
 
 export default function FeaturesPage() {
@@ -25,7 +25,7 @@ export default function FeaturesPage() {
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-[var(--mkt-text-muted)]">
               From the client&apos;s first click to their sixth maintenance
-              appointment — every touchpoint is designed around how extension
+              appointment, every touchpoint is designed around how extension
               work actually runs.
             </p>
           </ScrollReveal>

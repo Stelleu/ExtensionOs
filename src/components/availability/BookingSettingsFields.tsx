@@ -139,7 +139,7 @@ export function BookingSettingsFields({
           className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
         />
         <p className="mt-2 text-xs text-[#9C8E86]">
-          Sent immediately after you mark an appointment completed — separate
+          Sent immediately after you mark an appointment completed separate
           from the 6-week maintenance reminder.
         </p>
       </label>

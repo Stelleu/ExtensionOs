@@ -40,7 +40,7 @@ export function BookingDemoMock({ step }: { step: "service" | "datetime" | "conf
           <div className="mt-4">
             <p className="text-xs font-medium text-[#1A1614]">March 2026</p>
             <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[10px]">
-              {["M", "T", "W", "T", "F", "S", "S"].map((d) => (
+              {["M", "T", "W", "TH", "F", "SA", "SU"].map((d) => (
                 <span key={d} className="text-[#9C8E86]">
                   {d}
                 </span>

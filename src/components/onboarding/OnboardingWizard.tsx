@@ -268,7 +268,7 @@ export function OnboardingWizard() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-2xl overflow-x-hidden px-4 py-10 sm:px-6 sm:py-12">
       <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#B8956E]">
         Onboarding · Step {step} of 4
       </p>
@@ -326,7 +326,7 @@ export function OnboardingWizard() {
 
           <form
             onSubmit={saveStep1}
-            className={`space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5 ${
+            className={`space-y-4 rounded-3xl bg-white p-5 ring-1 ring-[#1A1614]/5 sm:p-8 ${
               step1Panel === "edit" ? "" : "hidden"
             }`}
           >
@@ -414,7 +414,7 @@ export function OnboardingWizard() {
       )}
 
       {step === 2 && (
-        <form onSubmit={saveStep2} className="space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5">
+        <form onSubmit={saveStep2} className="min-w-0 space-y-4 overflow-hidden rounded-3xl bg-white p-5 ring-1 ring-[#1A1614]/5 sm:p-8">
           <h1 className="font-serif text-3xl text-[#1A1614]">First service</h1>
           <p className="text-sm text-[#6B5E58]">
             Highly recommended — clients need something to book. You can add more later.
@@ -425,7 +425,7 @@ export function OnboardingWizard() {
             onChange={(v) => setService({ ...service, name: v })}
             required
           />
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <NumberField
               label="Price (£)"
               value={service.base_price}
@@ -496,7 +496,7 @@ export function OnboardingWizard() {
             </h1>
             <p className="mt-2 text-sm text-[#6B5E58]">
               Clients can only book times you set here. You can skip and add
-              hours later from the dashboard — until then, no slots will appear.
+              hours later from the dashboard until then, no slots will appear.
             </p>
           </div>
 
@@ -621,7 +621,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         required={required}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+        className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
       />
     </label>
   );
@@ -643,10 +643,11 @@ function NumberField({
       </span>
       <input
         type="number"
+        inputMode="decimal"
         min={0}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm"
+        className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base sm:text-sm"
       />
     </label>
   );

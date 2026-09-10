@@ -332,7 +332,7 @@ async function main() {
   console.log("HairBoss AI setup verification");
   console.log(`Target: ${url}`);
   console.log(
-    "Warning: use a test/staging project — do not point this at production client data casually.\n"
+    "Warning: use a test/staging project, do not point this at production client data casually.\n"
   );
 
   const supabase = createClient(url, key, {

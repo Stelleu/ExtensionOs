@@ -12,7 +12,7 @@ function friendlyAuthError(raw: string | undefined): string | null {
     return "This email is already registered. Try signing in instead.";
   }
   if (msg.includes("confirm") || msg.includes("verify")) {
-    return "Check your inbox to confirm your email, then sign in. For local dev, disable “Confirm email” in Supabase Auth settings.";
+    return "Check your inbox to confirm your email, then sign in.";
   }
   if (msg.includes("password")) {
     return "Password must be at least 8 characters.";
@@ -28,7 +28,7 @@ export function AuthError({ error }: { error?: string }) {
   return (
     <div
       role="alert"
-      className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+      className="mb-6 break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
     >
       {message}
     </div>

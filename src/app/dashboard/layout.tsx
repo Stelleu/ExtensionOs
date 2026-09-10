@@ -32,44 +32,61 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5]">
+    <div className="min-h-dvh overflow-x-hidden bg-[#FAF8F5]">
       <header className="border-b border-[#E8E0D8] bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div>
+        <div className="mx-auto flex max-w-6xl items-start justify-between gap-3 px-4 py-4 sm:px-6">
+          <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#B8956E]">
-              HairBoss AI
+              ExtensionOS
             </p>
-            <p className="font-serif text-lg text-[#1A1614]">{business.name}</p>
+            <p className="truncate font-serif text-lg text-[#1A1614]">
+              {business.name}
+            </p>
           </div>
-          <nav className="hidden items-center gap-6 md:flex">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#6B5E58] hover:text-[#1A1614]"
-              >
-                {l.label}
-              </Link>
-            ))}
+          <div className="flex shrink-0 items-center gap-2">
             <Link
               href={`/${business.slug}`}
               target="_blank"
-              className="rounded-full bg-[#1A1614] px-4 py-2 text-[11px] font-semibold uppercase tracking-wider text-white"
+              className="inline-flex min-h-11 items-center rounded-full bg-[#1A1614] px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-white sm:px-4 sm:text-[11px]"
             >
               Public page
             </Link>
-            <form action={signOut}>
+            <form action={signOut} className="hidden sm:block">
               <button
                 type="submit"
-                className="text-[11px] uppercase tracking-wider text-[#9C8E86]"
+                className="min-h-11 px-2 text-[11px] uppercase tracking-wider text-[#9C8E86]"
               >
                 Sign out
               </button>
             </form>
-          </nav>
+          </div>
         </div>
+        <nav
+          className="-mx-0 flex gap-1 overflow-x-auto border-t border-[#E8E0D8] px-3 py-2 md:mx-auto md:max-w-6xl md:flex-wrap md:overflow-visible md:px-6"
+          aria-label="Dashboard"
+        >
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="inline-flex min-h-11 shrink-0 items-center rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.15em] text-[#6B5E58] hover:bg-[#FAF8F5] hover:text-[#1A1614]"
+            >
+              {l.label}
+            </Link>
+          ))}
+          <form action={signOut} className="sm:hidden">
+            <button
+              type="submit"
+              className="inline-flex min-h-11 shrink-0 items-center rounded-full px-3 py-2 text-[11px] uppercase tracking-wider text-[#9C8E86]"
+            >
+              Sign out
+            </button>
+          </form>
+        </nav>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-10">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+        {children}
+      </main>
     </div>
   );
 }

@@ -10,7 +10,7 @@ export function InstagramStrip({ salon }: InstagramStripProps) {
 
   return (
     <section className="border-y border-[#E5DDD4] py-14">
-      <div className="mx-auto max-w-6xl px-8 text-center lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 text-center sm:px-8 lg:px-12">
         <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
           @{handle}
         </p>

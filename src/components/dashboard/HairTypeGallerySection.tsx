@@ -79,7 +79,7 @@ export function HairTypeGallerySection({ business }: { business: Business }) {
   }
 
   return (
-    <div className="space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5">
+    <div className="min-w-0 space-y-4 overflow-hidden rounded-3xl bg-white p-5 ring-1 ring-[#1A1614]/5 sm:p-8">
       <div>
         <h2 className="font-serif text-2xl text-[#1A1614]">Hair type gallery</h2>
         <p className="mt-1 text-sm text-[#6B5E58]">

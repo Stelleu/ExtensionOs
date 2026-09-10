@@ -68,7 +68,7 @@ export function HairTypeRecommendationsEditor({
   }
 
   return (
-    <div className="space-y-4 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-4">
+    <div className="min-w-0 space-y-4 overflow-hidden rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-3 sm:p-4">
       <div>
         <p className="text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
           Hair type recommendations
@@ -122,11 +122,11 @@ export function HairTypeRecommendationsEditor({
                           key={texture}
                           type="button"
                           onClick={() => toggleTexture(subtype, texture)}
-                          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                            on
-                              ? "bg-[#1A1614] text-white"
-                              : "border border-[#E8E0D8] text-[#6B5E58] hover:border-[#B8956E]/40"
-                          }`}
+                        className={`min-h-11 rounded-full px-3 py-2 text-xs font-medium transition-all ${
+                          on
+                            ? "bg-[#1A1614] text-white"
+                            : "border border-[#E8E0D8] text-[#6B5E58] hover:border-[#B8956E]/40"
+                        }`}
                         >
                           {texture}
                         </button>
@@ -145,7 +145,7 @@ export function HairTypeRecommendationsEditor({
                   </p>
                 )}
 
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 flex min-w-0 flex-col gap-2 sm:flex-row">
                   <input
                     type="text"
                     value={customDraft[subtype] ?? ""}
@@ -156,7 +156,7 @@ export function HairTypeRecommendationsEditor({
                       }))
                     }
                     placeholder="Custom recommendation…"
-                    className="flex-1 rounded-xl border border-[#E8E0D8] px-3 py-2 text-xs"
+                    className="box-border min-h-11 min-w-0 flex-1 rounded-xl border border-[#E8E0D8] px-3 py-2 text-base sm:text-xs"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -167,7 +167,7 @@ export function HairTypeRecommendationsEditor({
                   <button
                     type="button"
                     onClick={() => addCustom(subtype)}
-                    className="rounded-full border border-[#E8E0D8] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#6B5E58]"
+                    className="min-h-11 shrink-0 rounded-full border border-[#E8E0D8] px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#6B5E58]"
                   >
                     Add
                   </button>

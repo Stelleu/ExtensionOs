@@ -8,7 +8,7 @@ interface GalleryProps {
 export function Gallery({ salon }: GalleryProps) {
   return (
     <section id="gallery" className="border-t border-[#E5DDD4] py-28 lg:py-36">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="text-center">
           <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
             Portfolio

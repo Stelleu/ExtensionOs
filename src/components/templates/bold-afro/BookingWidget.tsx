@@ -115,7 +115,7 @@ export function BookingWidget({ salon }: BookingWidgetProps) {
             Secure your slot
           </h2>
           <p className="mx-auto mt-4 max-w-md text-[#5C4A3A]">
-            Pick your service, choose an available time — only open slots are
+            Pick your service, choose an available time, only open slots are
             shown. Deposit taken at confirmation.
           </p>
         </div>

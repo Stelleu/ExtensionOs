@@ -7,7 +7,7 @@ interface AboutProps {
 
 export function About({ salon }: AboutProps) {
   return (
-    <section id="about" className="bg-white py-24 lg:py-32">
+    <section id="about" className="overflow-x-clip bg-white py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-24">
           <div className="relative">
@@ -20,7 +20,7 @@ export function About({ salon }: AboutProps) {
                 sizes="(max-width: 1024px) 100vw, 40vw"
               />
             </div>
-            <div className="absolute -bottom-8 -right-4 rounded-2xl bg-[#1A1614] px-8 py-6 text-white shadow-2xl sm:-right-8">
+            <div className="absolute -bottom-4 -right-2 rounded-2xl bg-[#1A1614] px-6 py-5 text-white shadow-2xl sm:-bottom-8 sm:-right-4 sm:px-8 sm:py-6 lg:-right-8">
               <p className="font-serif text-3xl">8+</p>
               <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-white/60">
                 Years of expertise
@@ -39,7 +39,7 @@ export function About({ salon }: AboutProps) {
               <p>{salon.bio}</p>
               <p>
                 From consultation to aftercare, every detail is handled with care.
-                No rushed appointments, no cookie-cutter installs — just you,
+                No rushed appointments, no cookie-cutter installs, just you,
                 elevated.
               </p>
             </div>

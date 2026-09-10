@@ -13,7 +13,7 @@ export function Policies({ salon }: PoliciesProps) {
 
   return (
     <section className="border-t border-[#E5DDD4] py-20">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="grid gap-12 md:grid-cols-3 md:gap-8">
           {items.map((item) => (
             <div key={item.title} className="border-t border-[#E5DDD4] pt-8">

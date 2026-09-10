@@ -14,7 +14,7 @@ const tabs = [
     label: "Client booking",
     title: "Seamless online booking",
     description:
-      "Clients pick a service, see only real available slots, and pay their deposit — no back-and-forth DMs.",
+      "Clients pick a service, see only real available slots, and pay their deposit, no back-and-forth DMs.",
   },
   {
     id: "consult",
@@ -28,7 +28,7 @@ const tabs = [
     label: "Stylist dashboard",
     title: "Your command centre",
     description:
-      "Confirmed bookings, client profiles, and visit history — updated automatically.",
+      "Confirmed bookings, client profiles, and visit history updated automatically.",
   },
 ] as const;
 

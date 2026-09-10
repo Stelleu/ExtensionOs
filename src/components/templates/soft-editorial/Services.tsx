@@ -8,7 +8,7 @@ interface ServicesProps {
 export function Services({ salon }: ServicesProps) {
   return (
     <section id="services" className="border-t border-[#E5DDD4] py-28 lg:py-36">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="max-w-xl">
           <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
             Services

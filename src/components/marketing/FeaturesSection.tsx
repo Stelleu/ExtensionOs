@@ -4,7 +4,7 @@ import { GlassCard } from "@/components/marketing/GlassCard";
 const features = [
   {
     title: "Automatic client CRM",
-    body: "Every booking builds a client profile — visit count, hair notes, and history — with zero manual data entry.",
+    body: "Every booking builds a client profile visit count, hair notes, and history with zero manual data entry.",
     accent: "01",
   },
   {
@@ -14,7 +14,7 @@ const features = [
   },
   {
     title: "Maintenance reminders",
-    body: "Extension clients get automated nudges before their maintenance window closes — so rebooks happen on autopilot.",
+    body: "Extension clients get automated nudges before their maintenance window closes so rebooks happen on autopilot.",
     accent: "03",
   },
   {
@@ -24,7 +24,7 @@ const features = [
   },
   {
     title: "Three premium themes",
-    body: "Your booking site reflects your brand — choose from three genuinely distinct designs, not a one-size-fits-all template.",
+    body: "Your booking site reflects your brand choose from three genuinely distinct designs, not a one-size-fits-all template.",
     accent: "05",
     themes: true,
   },

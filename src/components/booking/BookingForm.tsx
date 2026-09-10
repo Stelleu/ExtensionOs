@@ -226,17 +226,17 @@ export function BookingForm({ salon }: BookingFormProps) {
   }
 
   return (
-    <section id="book" className="bg-[#FAF8F5] py-20 lg:py-28">
-      <div className="mx-auto max-w-5xl px-6 lg:px-8">
+    <section id="book" className="overflow-x-hidden bg-[#FAF8F5] py-14 sm:py-20 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-[#B8956E]">
             Book your glam
           </p>
-          <h2 className="mt-4 font-serif text-4xl text-[#1A1614] sm:text-5xl">
+          <h2 className="mt-4 font-serif text-3xl text-[#1A1614] sm:text-5xl">
             Secure your slot
           </h2>
           <p className="mx-auto mt-4 max-w-md text-[#6B5E58]">
-            Pick your service, choose an available time — only open slots are
+            Pick your service, choose an available time only open slots are
             shown. Deposit taken at confirmation.
           </p>
         </div>
@@ -246,7 +246,7 @@ export function BookingForm({ salon }: BookingFormProps) {
             <div key={s.id} className="flex flex-1 items-center">
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-colors ${
+                  className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold transition-colors sm:h-8 sm:w-8 ${
                     i <= stepIndex
                       ? "bg-[#1A1614] text-[#FAF8F5]"
                       : "bg-[#E8E0D8] text-[#9C8E86]"
@@ -269,7 +269,7 @@ export function BookingForm({ salon }: BookingFormProps) {
 
         <div className="mt-10 overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(26,22,20,0.12)] ring-1 ring-[#1A1614]/5">
           {step === "service" && (
-            <div className="p-8 lg:p-10">
+            <div className="p-5 sm:p-8 lg:p-10">
               <h3 className="font-serif text-2xl text-[#1A1614]">
                 What are you booking?
               </h3>
@@ -314,7 +314,7 @@ export function BookingForm({ salon }: BookingFormProps) {
 
           {step === "datetime" && service && (
             <div className="grid lg:grid-cols-[1fr_280px]">
-              <div className="border-b border-[#E8E0D8] p-8 lg:border-b-0 lg:border-r lg:p-10">
+              <div className="border-b border-[#E8E0D8] p-5 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                 <button
                   type="button"
                   onClick={() => setStep("service")}
@@ -384,7 +384,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                         type="button"
                         disabled={disabled}
                         onClick={() => selectDate(date)}
-                        className={`aspect-square rounded-xl text-sm transition-all ${
+                        className={`flex min-h-11 min-w-0 items-center justify-center rounded-xl text-sm transition-all sm:aspect-square sm:min-h-0 ${
                           isSelected
                             ? "bg-[#1A1614] font-semibold text-white shadow-md"
                             : disabled
@@ -401,7 +401,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                   Greyed-out dates are fully booked or unavailable
                 </p>
               </div>
-              <div className="bg-[#FAF8F5] p-8 lg:p-10">
+              <div className="bg-[#FAF8F5] p-5 sm:p-8 lg:p-10">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#9C8E86]">
                   {selectedDate
                     ? formatDisplayDate(selectedDate)
@@ -440,7 +440,7 @@ export function BookingForm({ salon }: BookingFormProps) {
 
           {step === "details" && service && selectedDate && selectedTime && (
             <div className="grid lg:grid-cols-2">
-              <div className="border-b border-[#E8E0D8] bg-[#FAF8F5] p-8 lg:border-b-0 lg:border-r lg:p-10">
+              <div className="border-b border-[#E8E0D8] bg-[#FAF8F5] p-5 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                 <button
                   type="button"
                   onClick={() => setStep("datetime")}
@@ -477,7 +477,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                 </dl>
               </div>
 
-              <form className="space-y-5 p-8 lg:p-10" onSubmit={submitDetails}>
+              <form className="space-y-5 p-5 sm:p-8 lg:p-10" onSubmit={submitDetails}>
                 <h3 className="font-serif text-2xl text-[#1A1614]">
                   Almost there
                 </h3>
@@ -629,7 +629,7 @@ function NavBtn({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E8E0D8] text-[#1A1614] transition-colors hover:border-[#1A1614]"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E8E0D8] text-[#1A1614] transition-colors hover:border-[#1A1614]"
     >
       {children}
     </button>
@@ -647,9 +647,9 @@ function SummaryRow({
 }) {
   return (
     <div className="flex justify-between gap-4 border-b border-[#E8E0D8] pb-4">
-      <dt className="text-sm text-[#9C8E86]">{label}</dt>
+      <dt className="shrink-0 text-sm text-[#9C8E86]">{label}</dt>
       <dd
-        className={`text-sm font-medium ${highlight ? "font-serif text-lg text-[#B8956E]" : "text-[#1A1614]"}`}
+        className={`min-w-0 break-words text-right text-sm font-medium ${highlight ? "font-serif text-lg text-[#B8956E]" : "text-[#1A1614]"}`}
       >
         {value}
       </dd>
@@ -673,17 +673,20 @@ function Input({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
+    <label className="block min-w-0">
       <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
         {label}
       </span>
       <input
         type={type}
+        inputMode={
+          type === "email" ? "email" : type === "tel" ? "tel" : undefined
+        }
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3.5 text-sm text-[#1A1614] outline-none placeholder:text-[#C4B8B0] focus:border-[#B8956E] focus:ring-2 focus:ring-[#B8956E]/20"
+        className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3.5 text-base text-[#1A1614] outline-none placeholder:text-[#C4B8B0] focus:border-[#B8956E] focus:ring-2 focus:ring-[#B8956E]/20 sm:text-sm"
       />
     </label>
   );

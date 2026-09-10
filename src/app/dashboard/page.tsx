@@ -93,7 +93,7 @@ export default async function DashboardPage() {
         Awaiting payment confirmation
       </h2>
       <p className="mt-1 text-sm text-[#6B5E58]">
-        Deposits are confirmed via the link in your email — not from this screen.
+        Deposits are confirmed via the link in your email, not from this screen.
       </p>
       <div className="mt-6 grid gap-4">
         {(pendingPayments as PendingPaymentBooking[] | null)?.map((b) => (

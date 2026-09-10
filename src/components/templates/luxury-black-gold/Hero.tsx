@@ -7,7 +7,7 @@ interface HeroProps {
 
 export function Hero({ salon }: HeroProps) {
   return (
-    <section className="relative overflow-hidden bg-[#FAF8F5] pt-28 lg:pt-32">
+    <section className="relative overflow-x-clip overflow-hidden bg-[#FAF8F5] pt-28 lg:pt-32">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 lg:grid-cols-2 lg:gap-16 lg:px-10 lg:pb-24">
         {/* Copy */}
         <div className="order-2 lg:order-1 lg:py-12">
@@ -23,7 +23,7 @@ export function Hero({ salon }: HeroProps) {
 
           <p className="mt-6 max-w-md text-lg leading-relaxed text-[#6B5E58]">
             {salon.tagline}. Custom-blended extensions for a seamless, natural
-            finish — because your hair is part of your lifestyle.
+            finish, because your hair is part of your lifestyle.
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -73,7 +73,7 @@ export function Hero({ salon }: HeroProps) {
             )}
           </div>
           {/* Floating accent card */}
-          <div className="absolute -bottom-6 -left-4 rounded-2xl bg-white p-5 shadow-xl ring-1 ring-[#1A1614]/5 sm:-left-8 lg:-left-12">
+          <div className="absolute bottom-3 left-3 rounded-2xl bg-white p-4 shadow-xl ring-1 ring-[#1A1614]/5 sm:-bottom-6 sm:-left-4 sm:p-5 lg:-left-12">
             <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#9C8E86]">
               Next available
             </p>

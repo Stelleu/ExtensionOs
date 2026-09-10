@@ -14,7 +14,7 @@ export function MarketingFooter() {
             </p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--mkt-text-muted)]">
               The booking and client platform built exclusively for hair-extension
-              specialists — not another generic salon tool.
+              specialists, not another generic salon tool.
             </p>
           </div>
 

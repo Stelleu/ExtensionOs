@@ -69,7 +69,7 @@ export function emailLayout(input: {
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#FFFFFF;border-radius:24px;overflow:hidden;box-shadow:0 8px 60px -12px rgba(26,22,20,0.12);border:1px solid rgba(26,22,20,0.05);">
             <tr>
               <td style="padding:32px 32px 20px;text-align:center;background:#FAF8F5;">
-                <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:#B8956E;">HairBoss AI</p>
+                <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:#B8956E;">ExtensionOS</p>
                 <h1 style="margin:0;font-size:28px;line-height:1.25;color:#1A1614;font-weight:400;">${escapeHtml(input.title)}</h1>
               </td>
             </tr>
@@ -108,7 +108,7 @@ export function brandedPage(input: {
   </head>
   <body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#FAF8F5;font-family:Georgia,'Times New Roman',serif;padding:24px;">
     <div style="max-width:420px;width:100%;background:#FFFFFF;border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 8px 60px -12px rgba(26,22,20,0.12);border:1px solid rgba(26,22,20,0.05);">
-      <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:#B8956E;">HairBoss AI</p>
+      <p style="margin:0 0 12px;font-size:11px;font-weight:600;letter-spacing:0.35em;text-transform:uppercase;color:#B8956E;">ExtensionOS</p>
       <h1 style="margin:0 0 16px;font-size:28px;color:#1A1614;font-weight:400;">${escapeHtml(input.title)}</h1>
       <p style="margin:0;color:#6B5E58;font-size:15px;line-height:1.6;font-family:Arial,Helvetica,sans-serif;">${escapeHtml(input.message)}</p>
     </div>

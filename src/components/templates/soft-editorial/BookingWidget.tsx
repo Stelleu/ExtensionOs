@@ -106,7 +106,7 @@ export function BookingWidget({ salon }: BookingWidgetProps) {
 
   return (
     <section id="book" className="border-t border-[#E5DDD4] py-24 lg:py-32">
-      <div className="mx-auto max-w-5xl px-8 lg:px-12">
+      <div className="mx-auto max-w-5xl px-4 sm:px-8 lg:px-12">
         <div className="text-center">
           <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
             Book
@@ -115,7 +115,7 @@ export function BookingWidget({ salon }: BookingWidgetProps) {
             Reserve your appointment
           </h2>
           <p className="mx-auto mt-4 max-w-md text-sm text-[#7A726A]">
-            Pick your service, choose an available time — only open slots are
+            Pick your service, choose an available time, only open slots are
             shown. Deposit taken at confirmation.
           </p>
         </div>

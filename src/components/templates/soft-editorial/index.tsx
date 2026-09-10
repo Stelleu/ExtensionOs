@@ -20,7 +20,7 @@ interface SoftEditorialTemplateProps {
 
 export function SoftEditorialTemplate({ salon }: SoftEditorialTemplateProps) {
   return (
-    <div className="bg-[#FAF6F1] font-sans text-[#2C2825]">
+    <div className="overflow-x-clip bg-[#FAF6F1] font-sans text-[#2C2825]">
       <Header salon={salon} />
       <main>
         <Hero salon={salon} />

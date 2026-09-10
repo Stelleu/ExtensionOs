@@ -3,7 +3,7 @@ import { emailLayout } from "./html.ts";
 const RESEND_API = "https://api.resend.com/emails";
 
 function fromAddress(): string {
-  return Deno.env.get("RESEND_FROM_EMAIL") ?? "HairBoss AI <onboarding@resend.dev>";
+  return Deno.env.get("RESEND_FROM_EMAIL") ?? "ExtensionOS <onboarding@resend.dev>";
 }
 
 export async function sendEmail(input: {

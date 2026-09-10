@@ -19,7 +19,7 @@ export function Services({ salon }: ServicesProps) {
             </h2>
           </div>
           <p className="max-w-xs text-sm text-[#FFF8F0]/70">
-            Clear pricing. Secure your spot with a deposit — no surprises.
+            Clear pricing. Secure your spot with a deposit, no surprises.
           </p>
         </div>
 

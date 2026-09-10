@@ -55,7 +55,7 @@ describe("getTimeSlots (demo/mock availability)", () => {
 });
 
 describe("getTimeSlots gaps (documenting mock limitations)", () => {
-  it("does NOT treat a mid-day gap as a lunch-break window — only overlaps matter", () => {
+  it("does NOT treat a mid-day gap as a lunch-break window, only overlaps matter", () => {
     // Real availability table can have 10–12 and 14–18 as two rows; this mock
     // always runs continuous DAY_START–DAY_END and only subtracts bookings.
     const booked: BookedAppointment[] = [

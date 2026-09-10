@@ -34,7 +34,7 @@ export function Header({ salon }: HeaderProps) {
           : "bg-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-8 py-6 lg:px-12">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-8 sm:py-6 lg:px-12">
         <Link href="#" className="group flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center border border-[#C9A897]/40 font-[family-name:var(--font-cormorant)] text-sm tracking-widest text-[#2C2825]">
             {salon.logoInitials}

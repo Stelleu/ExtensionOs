@@ -7,7 +7,7 @@ interface HeroProps {
 
 export function Hero({ salon }: HeroProps) {
   return (
-    <section className="relative overflow-hidden bg-[#C45C3E] pt-24 lg:pt-28">
+    <section className="relative overflow-x-clip overflow-hidden bg-[#C45C3E] pt-24 lg:pt-28">
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.08]"
         style={{
@@ -24,7 +24,7 @@ export function Hero({ salon }: HeroProps) {
             {salon.tagline || "Your crown deserves the spotlight"}
           </h1>
           <p className="mt-6 max-w-md text-base leading-relaxed text-[#FFF8F0]/85">
-            Vibrant, healthy hair transformations rooted in expert care — bold
+            Vibrant, healthy hair transformations rooted in expert care, bold
             colour, flawless installs, and confidence that lasts.
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
@@ -69,7 +69,7 @@ export function Hero({ salon }: HeroProps) {
               />
             )}
           </div>
-          <div className="absolute -bottom-4 -right-4 rounded-2xl bg-[#1B4332] px-6 py-4 shadow-xl">
+          <div className="absolute bottom-3 right-3 rounded-2xl bg-[#1B4332] px-5 py-3 shadow-xl sm:-bottom-4 sm:-right-4 sm:px-6 sm:py-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#E8A849]">
               Open slots
             </p>

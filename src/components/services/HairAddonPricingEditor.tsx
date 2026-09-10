@@ -49,7 +49,7 @@ export function HairAddonPricingEditor({
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-4">
+    <div className="min-w-0 space-y-3 overflow-hidden rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-3 sm:p-4">
       <p className="text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
         Hair addon pricing
       </p>
@@ -66,58 +66,74 @@ export function HairAddonPricingEditor({
         {rows.map((row, index) => (
           <div
             key={`${row.length}-${row.texture}-${index}`}
-            className="space-y-2 rounded-xl border border-[#E8E0D8] bg-white p-3"
+            className="min-w-0 space-y-3 rounded-xl border border-[#E8E0D8] bg-white p-3"
           >
-            <div className="grid grid-cols-[1fr_1fr_5rem_auto] items-center gap-2">
-              <input
-                type="text"
-                value={row.length}
-                onChange={(e) => updateRow(index, { length: e.target.value })}
-                placeholder='Length (e.g. 18")'
-                className="rounded-xl border border-[#E8E0D8] bg-white px-3 py-2 text-sm"
-                aria-label="Length"
-              />
-              <input
-                type="text"
-                value={row.texture}
-                onChange={(e) => updateRow(index, { texture: e.target.value })}
-                placeholder="Texture"
-                className="rounded-xl border border-[#E8E0D8] bg-white px-3 py-2 text-sm"
-                aria-label="Texture"
-              />
-              <input
-                type="number"
-                min={0}
-                value={row.price}
-                onChange={(e) =>
-                  updateRow(index, { price: Number(e.target.value) })
-                }
-                className="rounded-xl border border-[#E8E0D8] bg-white px-3 py-2 text-sm"
-                aria-label="Price"
-              />
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_5.5rem_auto] sm:items-center">
+              <label className="block min-w-0">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
+                  Length
+                </span>
+                <input
+                  type="text"
+                  value={row.length}
+                  onChange={(e) => updateRow(index, { length: e.target.value })}
+                  placeholder='Length (e.g. 18")'
+                  className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-base sm:text-sm"
+                  aria-label="Length"
+                />
+              </label>
+              <label className="block min-w-0">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
+                  Texture
+                </span>
+                <input
+                  type="text"
+                  value={row.texture}
+                  onChange={(e) => updateRow(index, { texture: e.target.value })}
+                  placeholder="Texture"
+                  className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-base sm:text-sm"
+                  aria-label="Texture"
+                />
+              </label>
+              <label className="block min-w-0">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
+                  Price (£)
+                </span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  value={row.price}
+                  onChange={(e) =>
+                    updateRow(index, { price: Number(e.target.value) })
+                  }
+                  className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-base sm:text-sm"
+                  aria-label="Price"
+                />
+              </label>
               <button
                 type="button"
                 onClick={() => onChange(rows.filter((_, i) => i !== index))}
-                className="text-xs text-[#9C8E86] hover:text-[#1A1614]"
+                className="min-h-11 px-2 text-left text-xs text-[#9C8E86] hover:text-[#1A1614] sm:text-center"
               >
                 Remove
               </button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
               {row.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={row.image_url}
                   alt=""
-                  className="h-12 w-10 rounded-lg object-cover ring-1 ring-[#E8E0D8]"
+                  className="h-12 w-10 shrink-0 rounded-lg object-cover ring-1 ring-[#E8E0D8]"
                 />
               ) : (
-                <div className="flex h-12 w-10 items-center justify-center rounded-lg bg-[#FAF8F5] text-[9px] text-[#9C8E86] ring-1 ring-[#E8E0D8]">
+                <div className="flex h-12 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FAF8F5] text-[9px] text-[#9C8E86] ring-1 ring-[#E8E0D8]">
                   —
                 </div>
               )}
-              <label className="text-xs text-[#6B5E58]">
-                <span className="mr-2 font-medium text-[#B8956E]">
+              <label className="min-w-0 flex-1 text-xs text-[#6B5E58]">
+                <span className="mb-1 block font-medium text-[#B8956E]">
                   {uploadingIndex === index
                     ? "Uploading…"
                     : row.image_url
@@ -128,7 +144,7 @@ export function HairAddonPricingEditor({
                   type="file"
                   accept="image/*"
                   disabled={uploadingIndex !== null}
-                  className="text-xs"
+                  className="block w-full max-w-full text-xs"
                   onChange={(e) => {
                     handlePhoto(index, e.target.files?.[0]);
                     e.target.value = "";
@@ -151,7 +167,7 @@ export function HairAddonPricingEditor({
                       )
                     )
                   }
-                  className="text-xs text-[#9C8E86] hover:text-[#1A1614]"
+                  className="min-h-11 shrink-0 text-xs text-[#9C8E86] hover:text-[#1A1614]"
                 >
                   Clear
                 </button>
@@ -168,7 +184,7 @@ export function HairAddonPricingEditor({
             { length: '18"', texture: "body-wavy", price: 120 },
           ])
         }
-        className="text-xs font-semibold uppercase tracking-wider text-[#B8956E]"
+        className="min-h-11 text-xs font-semibold uppercase tracking-wider text-[#B8956E]"
       >
         + Add row
       </button>

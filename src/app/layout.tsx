@@ -32,7 +32,7 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "HairBoss AI — Salon websites for extension specialists",
+  title: "ExtensionOS — Salon websites for extension specialists",
   description:
     "AI-powered websites, booking and client management for hair extension stylists.",
 };

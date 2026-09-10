@@ -54,13 +54,13 @@ export function NaturalHairIntake({
   );
 
   return (
-    <div className="mt-4 space-y-4 border-t border-[#E8E0D8] pt-4">
+    <div className="mt-4 min-w-0 space-y-4 overflow-hidden border-t border-[#E8E0D8] pt-4">
       <div>
         <p className="text-sm font-medium text-[#1A1614]">
           Tell us about your natural hair
         </p>
         <p className="mt-1 text-xs text-[#9C8E86]">
-          This helps your stylist prepare — not a final recommendation.
+          This helps your stylist prepare not a final recommendation.
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export function NaturalHairIntake({
                     key={subtype}
                     type="button"
                     onClick={() => onTextureChange(subtype)}
-                    className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-2 text-xs transition-all ${
+                    className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-3 text-xs transition-all ${
                       selected
                         ? "border-[#B8956E] bg-white ring-2 ring-[#B8956E]/20"
                         : "border-[#E8E0D8] bg-white hover:border-[#B8956E]/40"
@@ -124,7 +124,7 @@ export function NaturalHairIntake({
               key={option}
               type="button"
               onClick={() => onThicknessChange(option)}
-              className={`rounded-full px-4 py-2 text-xs font-medium capitalize transition-all ${
+              className={`min-h-11 rounded-full px-4 py-2.5 text-xs font-medium capitalize transition-all ${
                 thickness === option
                   ? "bg-[#1A1614] text-white"
                   : "border border-[#E8E0D8] bg-white text-[#6B5E58] hover:border-[#B8956E]/40"
@@ -152,7 +152,7 @@ export function NaturalHairIntake({
               key={label}
               type="button"
               onClick={() => onChemicalTreatmentChange(value)}
-              className={`rounded-full px-4 py-2 text-xs font-medium transition-all ${
+              className={`min-h-11 rounded-full px-4 py-2.5 text-xs font-medium transition-all ${
                 chemicalTreatment === value
                   ? "bg-[#1A1614] text-white"
                   : "border border-[#E8E0D8] bg-white text-[#6B5E58] hover:border-[#B8956E]/40"

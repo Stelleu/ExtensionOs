@@ -7,7 +7,7 @@ interface FooterProps {
 export function Footer({ salon }: FooterProps) {
   return (
     <footer className="border-t border-[#E5DDD4] py-14">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="flex flex-col items-center justify-between gap-8 sm:flex-row">
           <div className="text-center sm:text-left">
             <p className="font-[family-name:var(--font-cormorant)] text-xl text-[#2C2825]">
@@ -23,7 +23,7 @@ export function Footer({ salon }: FooterProps) {
           </p>
 
           <p className="text-[10px] uppercase tracking-[0.2em] text-[#C9A897]/70">
-            Powered by HairBoss AI
+            Powered by ExtensionOS
           </p>
         </div>
       </div>

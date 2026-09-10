@@ -29,7 +29,7 @@ export function Contact({ salon }: ContactProps) {
               Let&apos;s connect
             </h2>
             <p className="mt-5 max-w-sm text-[#FFF8F0]/75">
-              Questions before booking? Drop us a line — we reply within 24 hours.
+              Questions before booking? Drop us a line, we reply within 24 hours.
             </p>
             <a
               href="#book"

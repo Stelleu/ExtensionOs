@@ -63,7 +63,7 @@ export function HairAddonCard({
         type="button"
         onClick={onSelect}
         className={cn(
-          "w-[140px] shrink-0 rounded-2xl border p-2 text-left transition-all",
+          "w-[132px] shrink-0 rounded-2xl border p-2 text-left transition-all sm:w-[140px]",
           selected
             ? "border-[#B8956E] bg-white ring-2 ring-[#B8956E]/20"
             : "border-[#E8E0D8] bg-white hover:border-[#B8956E]/40",
@@ -78,7 +78,7 @@ export function HairAddonCard({
   return (
     <div
       className={cn(
-        "w-[140px] shrink-0 rounded-2xl border border-[#E8E0D8] bg-white p-2",
+        "w-[132px] shrink-0 rounded-2xl border border-[#E8E0D8] bg-white p-2 sm:w-[140px]",
         className
       )}
     >

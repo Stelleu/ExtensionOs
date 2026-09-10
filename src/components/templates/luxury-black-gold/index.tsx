@@ -20,7 +20,7 @@ interface LuxuryBlackGoldTemplateProps {
 
 export function LuxuryBlackGoldTemplate({ salon }: LuxuryBlackGoldTemplateProps) {
   return (
-    <div className="bg-[#FAF8F5] text-[#1A1614]">
+    <div className="bg-[#FAF8F5] text-[#1A1614] overflow-x-clip">
       <Header salon={salon} />
       <main>
         <Hero salon={salon} />

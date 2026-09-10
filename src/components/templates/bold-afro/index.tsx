@@ -20,7 +20,7 @@ interface BoldAfroTemplateProps {
 
 export function BoldAfroTemplate({ salon }: BoldAfroTemplateProps) {
   return (
-    <div className="bg-[#FFF8F0] font-[family-name:var(--font-nunito)] text-[#2C1810]">
+    <div className="overflow-x-clip bg-[#FFF8F0] font-[family-name:var(--font-nunito)] text-[#2C1810]">
       <Header salon={salon} />
       <main>
         <Hero salon={salon} />

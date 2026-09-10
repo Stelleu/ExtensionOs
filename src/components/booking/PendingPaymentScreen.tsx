@@ -74,9 +74,9 @@ export function PendingPaymentScreen({
   const followUp = contactLine({ instagram, email, phone });
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-6 py-16">
-      <div className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(26,22,20,0.12)] ring-1 ring-[#1A1614]/5">
-        <div className="border-b border-[#E8E0D8] bg-[#FAF8F5]/60 px-8 py-10 text-center lg:px-10">
+    <div className="flex min-h-dvh items-center justify-center overflow-x-hidden bg-[#FAF8F5] px-4 py-10 sm:px-6 sm:py-16">
+      <div className="w-full min-w-0 max-w-lg overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(26,22,20,0.12)] ring-1 ring-[#1A1614]/5">
+        <div className="border-b border-[#E8E0D8] bg-[#FAF8F5]/60 px-5 py-8 text-center sm:px-8 sm:py-10 lg:px-10">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF8ED] ring-1 ring-[#B8956E]/20">
             <span className="font-serif text-2xl text-[#B8956E]" aria-hidden>
               ◷
@@ -94,7 +94,7 @@ export function PendingPaymentScreen({
           </p>
         </div>
 
-        <div className="space-y-8 px-8 py-10 lg:px-10">
+        <div className="space-y-8 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
           <dl className="space-y-5">
             <SummaryRow label="Service" value={serviceName} />
             <SummaryRow

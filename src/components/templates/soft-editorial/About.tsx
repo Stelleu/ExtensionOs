@@ -8,7 +8,7 @@ interface AboutProps {
 export function About({ salon }: AboutProps) {
   return (
     <section id="about" className="py-28 lg:py-36">
-      <div className="mx-auto max-w-6xl px-8 lg:px-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8 lg:px-12">
         <div className="grid items-start gap-20 lg:grid-cols-[1fr_1.1fr] lg:gap-24">
           <div className="order-2 lg:order-1">
             <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-[#C9A897]">
@@ -20,8 +20,8 @@ export function About({ salon }: AboutProps) {
             <div className="mt-10 space-y-6 border-t border-[#E5DDD4] pt-10 text-[#7A726A] leading-relaxed">
               <p>{salon.bio}</p>
               <p>
-                Every consultation begins with listening — your lifestyle, your
-                texture, your vision — before a single strand is placed.
+                Every consultation begins with listening, your lifestyle, your
+                texture, your vision, before a single strand is placed.
               </p>
             </div>
             <ul className="mt-12 space-y-4 border-t border-[#E5DDD4] pt-10">

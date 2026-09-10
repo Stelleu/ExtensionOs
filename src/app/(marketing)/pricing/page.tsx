@@ -6,7 +6,7 @@ import { ScrollReveal } from "@/components/marketing/ScrollReveal";
 export const metadata: Metadata = {
   title: "Pricing — ExtensionOS",
   description:
-    "One simple plan for hair-extension specialists. Everything included — booking, CRM, consultation flow, and premium themes.",
+    "One simple plan for hair-extension specialists. Everything included booking, CRM, consultation flow, and premium themes.",
 };
 
 export default function PricingPage() {

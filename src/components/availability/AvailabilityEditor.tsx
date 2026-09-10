@@ -114,7 +114,7 @@ export function AvailabilityEditor({
                       onChange={(e) =>
                         updateWindow(day, i, { start: e.target.value })
                       }
-                      className="rounded-lg border border-[#E8E0D8] px-2 py-1.5 text-sm"
+                      className="min-h-11 rounded-lg border border-[#E8E0D8] px-3 py-2 text-base sm:text-sm"
                     />
                     <span className="text-[#9C8E86]">–</span>
                     <input
@@ -123,7 +123,7 @@ export function AvailabilityEditor({
                       onChange={(e) =>
                         updateWindow(day, i, { end: e.target.value })
                       }
-                      className="rounded-lg border border-[#E8E0D8] px-2 py-1.5 text-sm"
+                      className="min-h-11 rounded-lg border border-[#E8E0D8] px-3 py-2 text-base sm:text-sm"
                     />
                     {d.windows.length > 1 && (
                       <button

@@ -27,7 +27,7 @@ export default async function ClientsPage() {
     <div>
       <h1 className="font-serif text-4xl text-[#1A1614]">Clients</h1>
       <p className="mt-2 text-sm text-[#6B5E58]">
-        Health notes are only visible on individual booking cards — never in
+        Health notes are only visible on individual booking cards, never in
         lists or exports.
       </p>
       <div className="mt-8 overflow-hidden rounded-2xl bg-white ring-1 ring-[#1A1614]/5">

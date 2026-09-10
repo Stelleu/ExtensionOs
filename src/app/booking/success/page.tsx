@@ -68,8 +68,8 @@ export default async function BookingSuccessPage({
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAF8F5] px-6">
-      <div className="w-full max-w-md rounded-3xl bg-white p-10 text-center shadow-lg ring-1 ring-[#1A1614]/5">
+    <div className="flex min-h-dvh items-center justify-center overflow-x-hidden bg-[#FAF8F5] px-4 sm:px-6">
+      <div className="w-full min-w-0 max-w-md rounded-3xl bg-white p-6 text-center shadow-lg ring-1 ring-[#1A1614]/5 sm:p-10">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F5E9] text-2xl text-[#2E7D32]">
           ✓
         </div>

@@ -69,7 +69,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-4 rounded-3xl bg-white p-8 ring-1 ring-[#1A1614]/5"
+      className="min-w-0 space-y-4 overflow-hidden rounded-3xl bg-white p-5 ring-1 ring-[#1A1614]/5 sm:p-8"
     >
       {error && (
         <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -89,7 +89,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
           required
           value={profile.name}
           onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+          className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
         />
       </label>
       <label className="block">
@@ -99,7 +99,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
         <input
           value={profile.tagline}
           onChange={(e) => setProfile({ ...profile, tagline: e.target.value })}
-          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+          className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
         />
       </label>
       <label className="block">
@@ -110,7 +110,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
           value={profile.bio}
           onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
           rows={4}
-          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+          className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
         />
       </label>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -123,7 +123,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
             value={profile.email}
             onChange={(e) => setProfile({ ...profile, email: e.target.value })}
             placeholder="hello@yoursalon.com"
-            className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
           />
         </label>
         <label className="block">
@@ -134,7 +134,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
             type="tel"
             value={profile.phone}
             onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-            className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
           />
         </label>
       </div>
@@ -149,7 +149,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
               setProfile({ ...profile, instagram: e.target.value })
             }
             placeholder="@yoursalon"
-            className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
           />
         </label>
         <label className="block">
@@ -161,7 +161,7 @@ export function BusinessProfileForm({ business }: { business: Business }) {
             onChange={(e) =>
               setProfile({ ...profile, location: e.target.value })
             }
-            className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+            className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] px-4 py-3 text-base outline-none focus:border-[#B8956E] sm:text-sm"
           />
         </label>
       </div>
