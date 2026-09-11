@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatPrice } from "@/lib/format";
+import {
+  currencySymbol,
+  formatHairLength,
+  formatPrice,
+  resolveDisplayCurrency,
+} from "@/lib/format";
 import {
   formatSlotLabel,
   formatDisplayDate,
@@ -11,9 +16,21 @@ describe("formatPrice (src/lib/format.ts)", () => {
     expect(formatPrice(0)).toBe("Free");
   });
 
-  it("formats GBP without forced decimals", () => {
-    expect(formatPrice(50)).toMatch(/£50/);
-    expect(formatPrice(120)).toMatch(/£120/);
+  it("formats with a currency symbol (GBP fallback without browser locale)", () => {
+    expect(formatPrice(50)).toMatch(/50/);
+    expect(formatPrice(50)).toMatch(/£|GBP|\$|€/);
+    expect(resolveDisplayCurrency("en-GB")).toBe("GBP");
+    expect(currencySymbol("en-GB")).toMatch(/£/);
+  });
+});
+
+describe("formatHairLength", () => {
+  it("adds an inch mark when missing", () => {
+    expect(formatHairLength("18")).toBe('18"');
+  });
+
+  it("does not double the inch mark", () => {
+    expect(formatHairLength('18"')).toBe('18"');
   });
 });
 

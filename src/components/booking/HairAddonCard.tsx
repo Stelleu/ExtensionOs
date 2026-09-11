@@ -1,10 +1,11 @@
 import type { HairAddonPriceEntry } from "@/types/database";
-import { formatPrice } from "@/lib/format";
+import { formatHairLength, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface HairAddonCardProps {
   entry: HairAddonPriceEntry;
   selected?: boolean;
+  recommended?: boolean;
   onSelect?: () => void;
   className?: string;
 }
@@ -13,6 +14,7 @@ interface HairAddonCardProps {
 export function HairAddonCard({
   entry,
   selected,
+  recommended,
   onSelect,
   className,
 }: HairAddonCardProps) {
@@ -43,11 +45,16 @@ export function HairAddonCard({
         >
           <HairAddonPlaceholder texture={entry.texture} />
         </div>
+        {recommended ? (
+          <span className="absolute left-1.5 top-1.5 rounded-full bg-[#1A1614] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+            Recommended
+          </span>
+        ) : null}
       </div>
       <p className="mt-2 text-xs font-medium text-[#1A1614]">
         {entry.length === "—"
           ? entry.texture
-          : `${entry.length} · ${entry.texture}`}
+          : `${formatHairLength(entry.length)} · ${entry.texture}`}
       </p>
       {entry.price > 0 && (
         <p className="text-sm font-serif text-[#B8956E]">
@@ -114,6 +121,7 @@ interface HairAddonCarouselProps {
   entries: HairAddonPriceEntry[];
   selectedLength: string;
   selectedTexture: string;
+  recommendedTextures?: string[];
   onSelect: (length: string, texture: string) => void;
 }
 
@@ -121,9 +129,18 @@ export function HairAddonCarousel({
   entries,
   selectedLength,
   selectedTexture,
+  recommendedTextures = [],
   onSelect,
 }: HairAddonCarouselProps) {
   if (entries.length === 0) return null;
+
+  const recommendedSet = new Set(
+    recommendedTextures.map((t) => t.toLowerCase())
+  );
+  const ordered = [
+    ...entries.filter((e) => recommendedSet.has(e.texture.toLowerCase())),
+    ...entries.filter((e) => !recommendedSet.has(e.texture.toLowerCase())),
+  ];
 
   return (
     <div className="space-y-2">
@@ -131,15 +148,17 @@ export function HairAddonCarousel({
         Choose length &amp; texture
       </span>
       <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-        {entries.map((entry) => {
+        {ordered.map((entry) => {
           const selected =
             entry.length === selectedLength &&
             entry.texture === selectedTexture;
+          const recommended = recommendedSet.has(entry.texture.toLowerCase());
           return (
             <HairAddonCard
               key={`${entry.length}-${entry.texture}`}
               entry={entry}
               selected={selected}
+              recommended={recommended}
               onSelect={() => onSelect(entry.length, entry.texture)}
             />
           );

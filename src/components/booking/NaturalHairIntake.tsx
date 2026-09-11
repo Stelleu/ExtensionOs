@@ -3,21 +3,19 @@
 import {
   HAIR_TEXTURE_SUBTYPE_GROUPS,
   getRecommendationFor,
-  pricingRowsForRecommendations,
+  hairTypeFamily,
   type HairTextureSubtype,
   type HairThickness,
   type NaturalHairProfile,
 } from "@/lib/salon-helpers";
-import type { HairAddonPriceRow, HairTypeRecommendations } from "@/types/database";
+import type { HairTypeRecommendations } from "@/types/database";
 import { HairTypeIcon } from "@/components/booking/HairTypeIcon";
-import { HairAddonCard } from "@/components/booking/HairAddonCard";
 
 interface NaturalHairIntakeProps {
   textureSubtype: HairTextureSubtype | "";
   thickness: HairThickness | "";
   chemicalTreatment: boolean | null;
   notes: string;
-  hairAddonPricing: HairAddonPriceRow[];
   hairTypeRecommendations?: HairTypeRecommendations;
   hairTypePhotos?: Record<string, string>;
   onTextureChange: (subtype: HairTextureSubtype) => void;
@@ -26,12 +24,27 @@ interface NaturalHairIntakeProps {
   onNotesChange: (notes: string) => void;
 }
 
+function formatRecommendationList(labels: string[]): string {
+  if (labels.length === 1) return labels[0];
+  if (labels.length === 2) return `${labels[0]} or ${labels[1]}`;
+  return `${labels.slice(0, -1).join(", ")}, or ${labels[labels.length - 1]}`;
+}
+
+function recommendationCopy(
+  textureSubtype: HairTextureSubtype,
+  thickness: HairThickness | "",
+  recommendations: string[]
+): string {
+  const family = hairTypeFamily(textureSubtype) ?? "natural";
+  const hairDesc = thickness ? `${thickness} ${family}` : family;
+  return `You have ${hairDesc} hair — we'd recommend ${formatRecommendationList(recommendations)}.`;
+}
+
 export function NaturalHairIntake({
   textureSubtype,
   thickness,
   chemicalTreatment,
   notes,
-  hairAddonPricing,
   hairTypeRecommendations = {},
   hairTypePhotos = {},
   onTextureChange,
@@ -42,16 +55,6 @@ export function NaturalHairIntake({
   const recommendations = textureSubtype
     ? getRecommendationFor(textureSubtype, hairTypeRecommendations)
     : [];
-  const matchedRows = pricingRowsForRecommendations(
-    recommendations,
-    hairAddonPricing
-  );
-  const freeTextOnly = recommendations.filter(
-    (label) =>
-      !hairAddonPricing.some(
-        (row) => row.texture.toLowerCase() === label.toLowerCase()
-      )
-  );
 
   return (
     <div className="mt-4 min-w-0 space-y-4 overflow-hidden border-t border-[#E8E0D8] pt-4">
@@ -60,7 +63,7 @@ export function NaturalHairIntake({
           Tell us about your natural hair
         </p>
         <p className="mt-1 text-xs text-[#9C8E86]">
-          This helps your stylist prepare not a final recommendation.
+          This helps your stylist prepare — not a final recommendation.
         </p>
       </div>
 
@@ -113,6 +116,25 @@ export function NaturalHairIntake({
           </div>
         ))}
       </div>
+
+      {textureSubtype ? (
+        <div className="rounded-xl border border-[#B8956E]/30 bg-[#FAF8F5] px-4 py-3 text-sm text-[#6B5E58]">
+          {recommendations.length > 0 ? (
+            <p className="font-medium text-[#1A1614]">
+              {recommendationCopy(textureSubtype, thickness, recommendations)}
+            </p>
+          ) : (
+            <p>
+              Your stylist will help you choose the best match at your
+              appointment.
+            </p>
+          )}
+          <p className="mt-2 text-xs text-[#9C8E86]">
+            Your stylist will confirm the best option for you before your
+            appointment.
+          </p>
+        </div>
+      ) : null}
 
       <div>
         <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
@@ -176,42 +198,6 @@ export function NaturalHairIntake({
           className="w-full resize-none rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#B8956E] focus:ring-2 focus:ring-[#B8956E]/20"
         />
       </label>
-
-      {textureSubtype && (
-        <div className="rounded-xl border border-[#B8956E]/30 bg-[#FAF8F5] px-4 py-3 text-sm text-[#6B5E58]">
-          {recommendations.length > 0 ? (
-            <>
-              <p className="font-medium text-[#1A1614]">
-                Your stylist recommends these for your hair type:
-              </p>
-              {(matchedRows.length > 0 || freeTextOnly.length > 0) && (
-                <div className="mt-3 -mx-1 flex gap-3 overflow-x-auto px-1 pb-1">
-                  {matchedRows.map((entry) => (
-                    <HairAddonCard
-                      key={`${entry.length}-${entry.texture}`}
-                      entry={entry}
-                    />
-                  ))}
-                  {freeTextOnly.map((label) => (
-                    <HairAddonCard
-                      key={label}
-                      entry={{ length: "—", texture: label, price: 0 }}
-                    />
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <p>
-              Your stylist will help you choose the best match at your
-              appointment.
-            </p>
-          )}
-          <p className="mt-2 text-xs text-[#9C8E86]">
-            She&apos;ll confirm the best option for you before your appointment.
-          </p>
-        </div>
-      )}
     </div>
   );
 }

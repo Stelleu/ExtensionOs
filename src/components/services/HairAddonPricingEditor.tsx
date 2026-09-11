@@ -1,12 +1,24 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import type { HairAddonPriceEntry } from "@/types/database";
 import { uploadBusinessAsset } from "@/lib/actions/business";
+import { currencySymbol } from "@/lib/format";
 
 interface HairAddonPricingEditorProps {
   rows: HairAddonPriceEntry[];
   onChange: (rows: HairAddonPriceEntry[]) => void;
+}
+
+/** Strip inch marks for the numeric input; keep digits only. */
+function lengthNumericPart(stored: string): string {
+  return stored.replace(/["″]/g, "").replace(/[^\d.]/g, "").trim();
+}
+
+/** Persist length with a trailing inch mark for compatibility with existing rows. */
+function lengthWithInches(numeric: string): string {
+  const n = lengthNumericPart(numeric);
+  return n ? `${n}"` : "";
 }
 
 export function HairAddonPricingEditor({
@@ -16,9 +28,24 @@ export function HairAddonPricingEditor({
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+  // Stable row keys — never derive from length/texture (that remounts inputs on type).
+  const rowKeysRef = useRef<string[]>([]);
+  while (rowKeysRef.current.length < rows.length) {
+    rowKeysRef.current.push(
+      `row-${Date.now()}-${rowKeysRef.current.length}-${Math.random().toString(36).slice(2, 9)}`
+    );
+  }
+  if (rowKeysRef.current.length > rows.length) {
+    rowKeysRef.current = rowKeysRef.current.slice(0, rows.length);
+  }
 
   function updateRow(index: number, patch: Partial<HairAddonPriceEntry>) {
     onChange(rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
+  function removeRow(index: number) {
+    rowKeysRef.current = rowKeysRef.current.filter((_, i) => i !== index);
+    onChange(rows.filter((_, i) => i !== index));
   }
 
   function handlePhoto(index: number, file: File | undefined) {
@@ -48,8 +75,10 @@ export function HairAddonPricingEditor({
     });
   }
 
+  const currencyHint = currencySymbol();
+
   return (
-    <div className="min-w-0 space-y-3 overflow-hidden rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-3 sm:p-4">
+    <div className="min-w-0 space-y-3 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-3 sm:p-4">
       <p className="text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
         Hair addon pricing
       </p>
@@ -65,25 +94,40 @@ export function HairAddonPricingEditor({
       <div className="space-y-3">
         {rows.map((row, index) => (
           <div
-            key={`${row.length}-${row.texture}-${index}`}
+            key={rowKeysRef.current[index]}
             className="min-w-0 space-y-3 rounded-xl border border-[#E8E0D8] bg-white p-3"
           >
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_5.5rem_auto] sm:items-center">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(5.5rem,auto)_auto] sm:items-end">
               <label className="block min-w-0">
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86]">
                   Length
                 </span>
-                <input
-                  type="text"
-                  value={row.length}
-                  onChange={(e) => updateRow(index, { length: e.target.value })}
-                  placeholder='Length (e.g. 18")'
-                  className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-white px-3 py-2.5 text-base sm:text-sm"
-                  aria-label="Length"
-                />
+                <div className="flex min-h-11 min-w-0 items-stretch overflow-hidden rounded-xl border border-[#E8E0D8] bg-white focus-within:border-[#B8956E] focus-within:ring-2 focus-within:ring-[#B8956E]/20">
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    step={1}
+                    value={lengthNumericPart(row.length)}
+                    onChange={(e) =>
+                      updateRow(index, {
+                        length: lengthWithInches(e.target.value),
+                      })
+                    }
+                    placeholder="18"
+                    className="box-border min-h-11 w-full min-w-0 border-0 bg-transparent px-3 py-2.5 text-base outline-none sm:text-sm"
+                    aria-label="Length in inches"
+                  />
+                  <span
+                    className="flex shrink-0 items-center border-l border-[#E8E0D8] bg-[#FAF8F5] px-3 text-sm text-[#6B5E58]"
+                    aria-hidden
+                  >
+                    &quot;
+                  </span>
+                </div>
               </label>
               <label className="block min-w-0">
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86]">
                   Texture
                 </span>
                 <input
@@ -96,8 +140,8 @@ export function HairAddonPricingEditor({
                 />
               </label>
               <label className="block min-w-0">
-                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86] sm:sr-only">
-                  Price (£)
+                <span className="mb-1 block text-[10px] uppercase tracking-wider text-[#9C8E86]">
+                  Price ({currencyHint})
                 </span>
                 <input
                   type="number"
@@ -113,8 +157,8 @@ export function HairAddonPricingEditor({
               </label>
               <button
                 type="button"
-                onClick={() => onChange(rows.filter((_, i) => i !== index))}
-                className="min-h-11 px-2 text-left text-xs text-[#9C8E86] hover:text-[#1A1614] sm:text-center"
+                onClick={() => removeRow(index)}
+                className="min-h-11 shrink-0 justify-self-start px-3 text-xs text-[#9C8E86] hover:text-[#1A1614] sm:justify-self-auto sm:px-2 sm:pb-3"
               >
                 Remove
               </button>
@@ -178,12 +222,15 @@ export function HairAddonPricingEditor({
       </div>
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
+          rowKeysRef.current.push(
+            `row-${Date.now()}-${rowKeysRef.current.length}-${Math.random().toString(36).slice(2, 9)}`
+          );
           onChange([
             ...rows,
             { length: '18"', texture: "body-wavy", price: 120 },
-          ])
-        }
+          ]);
+        }}
         className="min-h-11 text-xs font-semibold uppercase tracking-wider text-[#B8956E]"
       >
         + Add row

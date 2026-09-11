@@ -105,16 +105,16 @@ export function BookingWidget({ salon }: BookingWidgetProps) {
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   return (
-    <section id="book" className="bg-[#FFF8F0] py-20 lg:py-28">
-      <div className="mx-auto max-w-5xl px-6 lg:px-8">
+    <section id="book" className="bg-[#1B4332] py-16 sm:py-24 lg:py-28">
+      <div className="mx-auto max-w-5xl px-4 sm:px-8 lg:px-8">
         <div className="text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#C45C3E]">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#E8A849]">
             Book now
           </p>
-          <h2 className="mt-4 text-4xl font-extrabold text-[#1B4332] sm:text-5xl">
+          <h2 className="mt-4 text-4xl font-extrabold text-[#FFF8F0] sm:text-5xl">
             Secure your slot
           </h2>
-          <p className="mx-auto mt-4 max-w-md text-[#5C4A3A]">
+          <p className="mx-auto mt-4 max-w-md text-[#FFF8F0]/80">
             Pick your service, choose an available time, only open slots are
             shown. Deposit taken at confirmation.
           </p>
@@ -147,7 +147,7 @@ export function BookingWidget({ salon }: BookingWidgetProps) {
           ))}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-3xl bg-white shadow-xl ring-2 ring-[#E8A849]/30">
+        <div className="mt-10 overflow-hidden rounded-[1.75rem] bg-[#FFF8F0] shadow-2xl ring-4 ring-[#E8A849]/50 sm:rounded-[2rem]">
           {/* ── Step 1: Service ── */}
           {step === "service" && (
             <div className="p-8 lg:p-10">

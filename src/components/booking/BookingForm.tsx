@@ -9,6 +9,8 @@ import {
   formatSlotLabel,
   getMonthDays,
   findHairAddonPrice,
+  getRecommendationFor,
+  pricingRowsForRecommendations,
   type HairTextureSubtype,
   type HairThickness,
 } from "@/lib/salon-helpers";
@@ -84,11 +86,29 @@ export function BookingForm({ salon }: BookingFormProps) {
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   const hairAddonRows = service?.hairAddonPricing ?? [];
+  const recommendedTextures = naturalTextureSubtype
+    ? getRecommendationFor(
+        naturalTextureSubtype,
+        service?.hairTypeRecommendations
+      )
+    : [];
   const hairAddonPrice =
     service?.requiresHairAddon && wantsHairAddon
       ? findHairAddonPrice(hairAddonRows, hairLength, hairTexture) ?? 0
       : 0;
   const totalPreview = (service?.price ?? 0) + hairAddonPrice;
+
+  function applyRecommendedAddon(subtype: HairTextureSubtype) {
+    const recs = getRecommendationFor(
+      subtype,
+      service?.hairTypeRecommendations
+    );
+    const matched = pricingRowsForRecommendations(recs, hairAddonRows);
+    if (matched[0]) {
+      setHairLength(matched[0].length);
+      setHairTexture(matched[0].texture);
+    }
+  }
 
   useEffect(() => {
     if (hairAddonRows.length === 0) return;
@@ -102,16 +122,42 @@ export function BookingForm({ salon }: BookingFormProps) {
   }, [hairAddonRows, hairLength, hairTexture]);
 
   useEffect(() => {
-    if (!businessId || !serviceId) return;
+    if (step !== "datetime" || !businessId || !serviceId) return;
+    let cancelled = false;
     setLoadingDates(true);
     fetch(
       `/api/slots?mode=dates&businessId=${businessId}&serviceId=${serviceId}`
     )
       .then((r) => r.json())
-      .then((data) => setAvailableDates(data.dates ?? []))
-      .catch(() => setAvailableDates([]))
-      .finally(() => setLoadingDates(false));
-  }, [businessId, serviceId]);
+      .then((data) => {
+        if (cancelled) return;
+        const dates: string[] = data.dates ?? [];
+        setAvailableDates(dates);
+        // Show the month that actually has availability (avoid an empty
+        // current month that only unlocks after clicking next/prev).
+        if (dates.length > 0) {
+          const first = dates[0];
+          const [y, m] = first.split("-").map(Number);
+          setCalendarMonth((current) => {
+            const hasInView = dates.some((iso) => {
+              const [yy, mm] = iso.split("-").map(Number);
+              return yy === current.year && mm - 1 === current.month;
+            });
+            if (hasInView) return current;
+            return { year: y, month: m - 1 };
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setAvailableDates([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingDates(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [step, businessId, serviceId]);
 
   useEffect(() => {
     if (!businessId || !serviceId || !selectedDate) return;
@@ -521,29 +567,34 @@ export function BookingForm({ salon }: BookingFormProps) {
                     </label>
                     {wantsHairAddon && (
                       <>
-                        <HairAddonCarousel
-                          entries={hairAddonRows}
-                          selectedLength={hairLength}
-                          selectedTexture={hairTexture}
-                          onSelect={(length, texture) => {
-                            setHairLength(length);
-                            setHairTexture(texture);
-                          }}
-                        />
                         <NaturalHairIntake
                           textureSubtype={naturalTextureSubtype}
                           thickness={naturalThickness}
                           chemicalTreatment={naturalChemicalTreatment}
                           notes={naturalHairNotes}
-                          hairAddonPricing={hairAddonRows}
                           hairTypeRecommendations={
                             service.hairTypeRecommendations
                           }
                           hairTypePhotos={salon.hairTypePhotos}
-                          onTextureChange={setNaturalTextureSubtype}
+                          onTextureChange={(subtype) => {
+                            setNaturalTextureSubtype(subtype);
+                            applyRecommendedAddon(subtype);
+                          }}
                           onThicknessChange={setNaturalThickness}
-                          onChemicalTreatmentChange={setNaturalChemicalTreatment}
+                          onChemicalTreatmentChange={
+                            setNaturalChemicalTreatment
+                          }
                           onNotesChange={setNaturalHairNotes}
+                        />
+                        <HairAddonCarousel
+                          entries={hairAddonRows}
+                          selectedLength={hairLength}
+                          selectedTexture={hairTexture}
+                          recommendedTextures={recommendedTextures}
+                          onSelect={(length, texture) => {
+                            setHairLength(length);
+                            setHairTexture(texture);
+                          }}
                         />
                       </>
                     )}
@@ -588,6 +639,12 @@ export function BookingForm({ salon }: BookingFormProps) {
                     {error}
                   </p>
                 )}
+
+                <p className="text-center text-xs leading-relaxed text-[#9C8E86]">
+                  Please double-check your name, email, and phone number —
+                  your booking confirmation and all updates will be sent by
+                  email.
+                </p>
 
                 <button
                   type="submit"

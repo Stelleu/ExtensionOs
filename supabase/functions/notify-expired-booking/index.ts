@@ -91,7 +91,16 @@ Deno.serve(async (req) => {
           intro: `Hi ${row.clients?.name ?? "there"}, your booking for ${row.services?.name ?? "your service"} on ${formatDisplayDate(String(row.appointment_date))} wasn't confirmed in time and the slot has been released. If you'd still like to book, you're welcome to try again on our booking page.`,
           ctaUrl: `${siteUrl}/${slug}`,
           ctaLabel: "Book again",
+          const contact = business.instagram
+          ? `Instagram: @${business.instagram}`
+          : business.email
+          ? `Email: ${business.email}`
+          : business.phone
+          ? `Phone: ${business.phone}`
+          : '';
+          body: `<p>If this was a mistake, please contact ${business.name} directly: ${contact}</p>`,
         });
+        
         emailsSent += 1;
       } catch (emailErr) {
         console.error("notify-expired-booking email failed", row.id, emailErr);
