@@ -4,12 +4,13 @@
 # file only adds settings that need to live alongside the code.
 
 [build.environment]
-  # RESEND_FROM_EMAIL holds the "From" address used by the Resend transactional
-  # emails in supabase/functions. A From address is public by design (it ships
-  # in the header of every email we send), so it is not a secret.
+  # Keys listed here are intentionally public or non-secret, but Netlify's
+  # secrets scanner still fails the build when their values appear in
+  # compiled Next.js chunks (expected for NEXT_PUBLIC_* vars).
   #
-  # It is excluded from secrets scanning because its value collides with the
-  # example address used as an <input placeholder> in the salon profile and
-  # onboarding forms. Those placeholders are ordinary UI copy, but the scanner
-  # sees the matching string in the compiled Next.js chunks and fails the build.
-  SECRETS_SCAN_OMIT_KEYS = "RESEND_FROM_EMAIL"
+  # RESEND_FROM_EMAIL: From address is public by design; also collides with
+  # form placeholders in the UI.
+  #
+  # NEXT_PUBLIC_*: These must ship to the browser / SSR bundles — that is
+  # what the NEXT_PUBLIC_ prefix means. They are not server secrets.
+  SECRETS_SCAN_OMIT_KEYS = "RESEND_FROM_EMAIL,NEXT_PUBLIC_APP_URL,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
