@@ -1,0 +1,15 @@
+# Netlify configuration.
+#
+# The build command and publish directory are managed in the Netlify UI; this
+# file only adds settings that need to live alongside the code.
+
+[build.environment]
+  # RESEND_FROM_EMAIL holds the "From" address used by the Resend transactional
+  # emails in supabase/functions. A From address is public by design (it ships
+  # in the header of every email we send), so it is not a secret.
+  #
+  # It is excluded from secrets scanning because its value collides with the
+  # example address used as an <input placeholder> in the salon profile and
+  # onboarding forms. Those placeholders are ordinary UI copy, but the scanner
+  # sees the matching string in the compiled Next.js chunks and fails the build.
+  SECRETS_SCAN_OMIT_KEYS = "RESEND_FROM_EMAIL"
