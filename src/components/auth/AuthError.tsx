@@ -11,6 +11,12 @@ function friendlyAuthError(raw: string | undefined): string | null {
   if (msg.includes("already registered") || msg.includes("already been registered")) {
     return "This email is already registered. Try signing in instead.";
   }
+  if (msg.includes("misconfigured") || msg.includes("missing") && msg.includes("supabase")) {
+    return "Server configuration error: check Netlify env vars (Supabase URL + anon key), then redeploy.";
+  }
+  if (msg.includes("fetch failed") || msg.includes("network")) {
+    return "Could not reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL on Netlify.";
+  }
   if (msg.includes("confirm") || msg.includes("verify")) {
     return "Check your inbox to confirm your email, then sign in.";
   }

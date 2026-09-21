@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { signIn } from "@/lib/actions/auth";
-import { AuthError } from "@/components/auth/AuthError";
+import { LoginForm } from "@/components/auth/LoginForm";
 
 export default async function LoginPage({
   searchParams,
@@ -22,43 +21,8 @@ export default async function LoginPage({
           Sign in to your salon dashboard
         </p>
 
-        <div className="mt-6">
-          <AuthError error={error} />
-        </div>
+        <LoginForm initialError={error} />
 
-        <form action={signIn} className="space-y-4">
-          <label className="block">
-            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-              Email
-            </span>
-            <input
-              name="email"
-              type="email"
-              inputMode="email"
-              required
-              autoComplete="email"
-              className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3 text-base outline-none focus:border-[#B8956E]"
-            />
-          </label>
-          <label className="block">
-            <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
-              Password
-            </span>
-            <input
-              name="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="box-border min-h-11 w-full min-w-0 rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3 text-base outline-none focus:border-[#B8956E]"
-            />
-          </label>
-          <button
-            type="submit"
-            className="min-h-11 w-full rounded-full bg-[#1A1614] py-3.5 text-xs font-semibold uppercase tracking-[0.2em] text-white hover:bg-[#B8956E]"
-          >
-            Sign in
-          </button>
-        </form>
         <p className="mt-6 text-center text-sm text-[#6B5E58]">
           New here?{" "}
           <Link href="/signup" className="text-[#B8956E] hover:underline">
