@@ -81,10 +81,10 @@ export function NaturalHairIntake({
               {group.label}
             </p>
             <div
-              className={`grid gap-2 ${
+              className={`grid w-full min-w-0 gap-1.5 sm:gap-2 ${
                 group.subtypes.length === 1
                   ? "grid-cols-1 sm:grid-cols-3"
-                  : "grid-cols-3"
+                  : "grid-cols-2 sm:grid-cols-3"
               }`}
             >
               {group.subtypes.map((subtype) => {
@@ -95,13 +95,13 @@ export function NaturalHairIntake({
                     key={subtype}
                     type="button"
                     onClick={() => onTextureChange(subtype)}
-                    className={`flex min-h-11 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-3 text-xs transition-all ${
+                    className={`box-border flex min-h-11 min-w-0 w-full flex-col items-center justify-center gap-1 rounded-xl border px-1.5 py-2.5 text-xs transition-all sm:px-2 sm:py-3 ${
                       selected
                         ? "border-[#B8956E] bg-white ring-2 ring-[#B8956E]/20"
                         : "border-[#E8E0D8] bg-white hover:border-[#B8956E]/40"
                     }`}
                   >
-                    <div className="flex h-14 w-10 items-center justify-center overflow-hidden rounded-lg bg-[#FAF8F5]">
+                    <div className="flex h-14 w-10 max-w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#FAF8F5]">
                       {photo ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img

@@ -75,7 +75,7 @@ export default async function DashboardPage() {
           href={`/${business.slug}`}
           className="text-sm text-[#B8956E] hover:underline"
         >
-          hairboss.app/{business.slug} →
+          extensionOS.fr/{business.slug} →
         </Link>
       </div>
 
