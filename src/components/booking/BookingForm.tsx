@@ -9,8 +9,8 @@ import {
   formatSlotLabel,
   getMonthDays,
   findHairAddonPrice,
-  getRecommendationFor,
   pricingRowsForRecommendations,
+  resolveRecommendations,
   type HairTextureSubtype,
   type HairThickness,
 } from "@/lib/salon-helpers";
@@ -86,10 +86,15 @@ export function BookingForm({ salon }: BookingFormProps) {
   const stepIndex = STEPS.findIndex((s) => s.id === step);
 
   const hairAddonRows = service?.hairAddonPricing ?? [];
+  const availableAddonTextures = useMemo(
+    () => [...new Set(hairAddonRows.map((r) => r.texture))],
+    [hairAddonRows]
+  );
   const recommendedTextures = naturalTextureSubtype
-    ? getRecommendationFor(
+    ? resolveRecommendations(
         naturalTextureSubtype,
-        service?.hairTypeRecommendations
+        service?.hairTypeRecommendations,
+        availableAddonTextures
       )
     : [];
   const hairAddonPrice =
@@ -99,9 +104,10 @@ export function BookingForm({ salon }: BookingFormProps) {
   const totalPreview = (service?.price ?? 0) + hairAddonPrice;
 
   function applyRecommendedAddon(subtype: HairTextureSubtype) {
-    const recs = getRecommendationFor(
+    const recs = resolveRecommendations(
       subtype,
-      service?.hairTypeRecommendations
+      service?.hairTypeRecommendations,
+      availableAddonTextures
     );
     const matched = pricingRowsForRecommendations(recs, hairAddonRows);
     if (matched[0]) {
@@ -576,6 +582,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                             service.hairTypeRecommendations
                           }
                           hairTypePhotos={salon.hairTypePhotos}
+                          availableTextures={availableAddonTextures}
                           onTextureChange={(subtype) => {
                             setNaturalTextureSubtype(subtype);
                             applyRecommendedAddon(subtype);

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import {
-  getRecommendationFor,
+  resolveRecommendations,
   pricingRowsForRecommendations,
   type HairTextureSubtype,
   type HairThickness,
@@ -16,6 +16,9 @@ export default function BookingHairPreviewPage() {
   const salon = compareSalon("luxury-black-gold");
   const service = salon.services.find((s) => s.requiresHairAddon)!;
   const hairAddonRows = service.hairAddonPricing ?? [];
+  const availableAddonTextures = [
+    ...new Set(hairAddonRows.map((r) => r.texture)),
+  ];
 
   const [wantsHairAddon, setWantsHairAddon] = useState(true);
   const [hairLength, setHairLength] = useState(hairAddonRows[0]?.length ?? "");
@@ -39,18 +42,24 @@ export default function BookingHairPreviewPage() {
   const recommendedTextures = useMemo(
     () =>
       naturalTextureSubtype
-        ? getRecommendationFor(
+        ? resolveRecommendations(
             naturalTextureSubtype,
-            service.hairTypeRecommendations
+            service.hairTypeRecommendations,
+            availableAddonTextures
           )
         : [],
-    [naturalTextureSubtype, service.hairTypeRecommendations]
+    [
+      naturalTextureSubtype,
+      service.hairTypeRecommendations,
+      availableAddonTextures,
+    ]
   );
 
   function applyRecommendedAddon(subtype: HairTextureSubtype) {
-    const recs = getRecommendationFor(
+    const recs = resolveRecommendations(
       subtype,
-      service.hairTypeRecommendations
+      service.hairTypeRecommendations,
+      availableAddonTextures
     );
     const matched = pricingRowsForRecommendations(recs, hairAddonRows);
     if (matched[0]) {
@@ -88,6 +97,7 @@ export default function BookingHairPreviewPage() {
               notes={naturalHairNotes}
               hairTypeRecommendations={service.hairTypeRecommendations}
               hairTypePhotos={salon.hairTypePhotos}
+              availableTextures={availableAddonTextures}
               onTextureChange={(subtype) => {
                 setNaturalTextureSubtype(subtype);
                 applyRecommendedAddon(subtype);

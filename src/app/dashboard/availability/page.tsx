@@ -14,7 +14,7 @@ export default async function AvailabilityPage() {
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "id, minimum_booking_notice_hours, cancellation_policy, payment_link_url, payment_confirmation_window_hours, prep_instructions, care_instructions"
+      "id, minimum_booking_notice_hours, booking_buffer_minutes, cancellation_policy, payment_link_url, payment_confirmation_window_hours, prep_instructions, care_instructions"
     )
     .eq("owner_id", user.id)
     .single();
@@ -39,6 +39,7 @@ export default async function AvailabilityPage() {
       initialAvailability={(availability as Availability[]) ?? []}
       initialBlocked={(blocked as BlockedTime[]) ?? []}
       initialNoticeHours={business.minimum_booking_notice_hours ?? 24}
+      initialBookingBufferMinutes={business.booking_buffer_minutes ?? 30}
       initialCancellationPolicy={
         business.cancellation_policy || DEFAULT_CANCELLATION_POLICY
       }

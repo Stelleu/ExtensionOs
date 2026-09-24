@@ -14,9 +14,9 @@ export const HAIR_TEXTURES: HairTexture[] = [
 
 export const DEFAULT_HAIR_ADDON_PRICING: HairAddonPriceRow[] = [
   { length: '14"', texture: "body-wavy", price: 80 },
-  { length: '18"', texture: "body-wavy", price: 120 },
-  { length: '22"', texture: "body-wavy", price: 160 },
-  { length: '26"', texture: "body-wavy", price: 200 },
+  { length: '18"', texture: "straight", price: 120 },
+  { length: '22"', texture: "kinky", price: 160 },
+  { length: '26"', texture: "kinky-curly", price: 200 },
 ];
 
 export function parseHairAddonPricing(raw: unknown): HairAddonPriceRow[] {
@@ -189,6 +189,23 @@ export function hairTypeFamily(subtype: string): HairTypeFamily | null {
   return null;
 }
 
+/** Normalize texture labels so "body-wave" and "body-wavy" match. */
+export function normalizeHairTextureKey(texture: string): string {
+  const t = texture.toLowerCase().trim().replace(/[_ ]+/g, "-");
+  if (t === "body-wave" || t === "bodywave") return "body-wavy";
+  if (t === "deep-wavy" || t === "deepwave") return "deep-wave";
+  if (t === "kinkycurly") return "kinky-curly";
+  return t;
+}
+
+/** Default weft textures by natural-hair family when the stylist has not curated. */
+const DEFAULT_FAMILY_RECOMMENDATIONS: Record<HairTypeFamily, string[]> = {
+  straight: ["straight", "yaki"],
+  wavy: ["body-wavy", "body-wave", "deep-wave"],
+  curly: ["kinky-curly", "deep-wave"],
+  coily: ["kinky", "kinky-curly"],
+};
+
 /** Safe lookup of stylist-curated texture recommendations for a hair type. */
 export function getRecommendationFor(
   subtype: string | null | undefined,
@@ -207,6 +224,45 @@ export function getRecommendationFor(
   return raw
     .map((item) => (typeof item === "string" ? item.trim() : ""))
     .filter(Boolean);
+}
+
+/**
+ * Curated recommendations first; otherwise family defaults filtered to textures
+ * the salon actually sells (so clients still see a weft suggestion).
+ */
+export function resolveRecommendations(
+  subtype: string | null | undefined,
+  hairTypeRecommendations: unknown,
+  availableTextures: string[] = []
+): string[] {
+  const curated = getRecommendationFor(subtype, hairTypeRecommendations);
+  if (curated.length > 0) return curated;
+
+  const family = subtype ? hairTypeFamily(subtype) : null;
+  if (!family) return [];
+
+  const defaults = DEFAULT_FAMILY_RECOMMENDATIONS[family];
+  if (availableTextures.length === 0) {
+    // Prefer canonical "body-wavy" over the alias when nothing is configured.
+    return defaults.filter((t) => t !== "body-wave");
+  }
+
+  const availableKeys = new Set(
+    availableTextures.map((t) => normalizeHairTextureKey(t))
+  );
+  const matched: string[] = [];
+  const seen = new Set<string>();
+  for (const label of defaults) {
+    const key = normalizeHairTextureKey(label);
+    if (!availableKeys.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    const display =
+      availableTextures.find(
+        (t) => normalizeHairTextureKey(t) === key
+      ) ?? label;
+    matched.push(display);
+  }
+  return matched;
 }
 
 export function parseHairTypeRecommendations(
@@ -241,9 +297,11 @@ export function pricingRowsForRecommendations(
   hairAddonPricing: HairAddonPriceRow[]
 ): HairAddonPriceRow[] {
   if (recommendations.length === 0) return [];
-  const wanted = new Set(recommendations.map((r) => r.toLowerCase()));
+  const wanted = new Set(
+    recommendations.map((r) => normalizeHairTextureKey(r))
+  );
   return hairAddonPricing.filter((row) =>
-    wanted.has(row.texture.toLowerCase())
+    wanted.has(normalizeHairTextureKey(row.texture))
   );
 }
 
@@ -268,6 +326,14 @@ export const NOTICE_HOUR_OPTIONS = [
   { value: 12, label: "12 hours" },
   { value: 24, label: "24 hours" },
   { value: 48, label: "48 hours" },
+] as const;
+
+export const BOOKING_BUFFER_MINUTE_OPTIONS = [
+  { value: 0, label: "No buffer" },
+  { value: 15, label: "15 minutes" },
+  { value: 30, label: "30 minutes" },
+  { value: 45, label: "45 minutes" },
+  { value: 60, label: "60 minutes" },
 ] as const;
 
 export const PAYMENT_CONFIRMATION_WINDOW_OPTIONS = [

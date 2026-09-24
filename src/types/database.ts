@@ -89,6 +89,7 @@ export interface Business {
   phone: string | null;
   location: string | null;
   minimum_booking_notice_hours: number;
+  booking_buffer_minutes: number;
   cancellation_policy: string;
   payment_link_url: string | null;
   payment_confirmation_window_hours: number;
@@ -151,6 +152,7 @@ export interface Booking {
   confirmation_token: string;
   confirmation_deadline: string;
   stylist_notified_at: string | null;
+  reminder_sent: boolean;
   maintenance_due_date: string | null;
   maintenance_reminder_sent: boolean;
   created_at: string;
@@ -238,6 +240,15 @@ export type Database = {
           p_date: string;
         };
         Returns: { slot_time: string }[];
+      };
+      get_available_dates: {
+        Args: {
+          p_business_id: string;
+          p_service_id: string;
+          p_start_date: string;
+          p_end_date: string;
+        };
+        Returns: { available_date: string }[];
       };
     };
     Enums: {

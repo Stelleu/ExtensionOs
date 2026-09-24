@@ -61,6 +61,7 @@ export function OnboardingWizard() {
 
   const [schedule, setSchedule] = useState<DayAvailability[]>(defaultWeekSchedule);
   const [noticeHours, setNoticeHours] = useState(24);
+  const [bookingBufferMinutes, setBookingBufferMinutes] = useState(30);
   const [cancellationPolicy, setCancellationPolicy] = useState(
     DEFAULT_CANCELLATION_POLICY
   );
@@ -149,6 +150,9 @@ export function OnboardingWizard() {
         if (typeof biz.minimum_booking_notice_hours === "number") {
           setNoticeHours(biz.minimum_booking_notice_hours);
         }
+        if (typeof biz.booking_buffer_minutes === "number") {
+          setBookingBufferMinutes(biz.booking_buffer_minutes);
+        }
         if (biz.cancellation_policy) {
           setCancellationPolicy(biz.cancellation_policy);
         }
@@ -213,6 +217,7 @@ export function OnboardingWizard() {
         await updateBookingSettings({
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
+          booking_buffer_minutes: bookingBufferMinutes,
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
@@ -239,6 +244,7 @@ export function OnboardingWizard() {
         await updateBookingSettings({
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
+          booking_buffer_minutes: bookingBufferMinutes,
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
@@ -503,12 +509,14 @@ export function OnboardingWizard() {
           <AvailabilityEditor schedule={schedule} onChange={setSchedule} />
           <BookingSettingsFields
             noticeHours={noticeHours}
+            bookingBufferMinutes={bookingBufferMinutes}
             cancellationPolicy={cancellationPolicy}
             paymentLinkUrl={paymentLinkUrl}
             confirmationWindowHours={confirmationWindowHours}
             prepInstructions={prepInstructions}
             careInstructions={careInstructions}
             onNoticeChange={setNoticeHours}
+            onBookingBufferChange={setBookingBufferMinutes}
             onPolicyChange={setCancellationPolicy}
             onPaymentLinkChange={setPaymentLinkUrl}
             onConfirmationWindowChange={setConfirmationWindowHours}

@@ -114,6 +114,7 @@ export function draftToSalonProfile(draft: {
       phone: draft.phone || null,
       location: draft.location || null,
       minimum_booking_notice_hours: 24,
+      booking_buffer_minutes: 30,
       cancellation_policy: DEFAULT_CANCELLATION_POLICY,
       payment_link_url: null,
       payment_confirmation_window_hours: 4,

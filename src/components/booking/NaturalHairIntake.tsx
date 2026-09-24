@@ -2,7 +2,7 @@
 
 import {
   HAIR_TEXTURE_SUBTYPE_GROUPS,
-  getRecommendationFor,
+  resolveRecommendations,
   hairTypeFamily,
   type HairTextureSubtype,
   type HairThickness,
@@ -18,6 +18,8 @@ interface NaturalHairIntakeProps {
   notes: string;
   hairTypeRecommendations?: HairTypeRecommendations;
   hairTypePhotos?: Record<string, string>;
+  /** Textures from the service's hair addon pricing — used for default recs. */
+  availableTextures?: string[];
   onTextureChange: (subtype: HairTextureSubtype) => void;
   onThicknessChange: (thickness: HairThickness) => void;
   onChemicalTreatmentChange: (value: boolean) => void;
@@ -47,13 +49,18 @@ export function NaturalHairIntake({
   notes,
   hairTypeRecommendations = {},
   hairTypePhotos = {},
+  availableTextures = [],
   onTextureChange,
   onThicknessChange,
   onChemicalTreatmentChange,
   onNotesChange,
 }: NaturalHairIntakeProps) {
   const recommendations = textureSubtype
-    ? getRecommendationFor(textureSubtype, hairTypeRecommendations)
+    ? resolveRecommendations(
+        textureSubtype,
+        hairTypeRecommendations,
+        availableTextures
+      )
     : [];
 
   return (

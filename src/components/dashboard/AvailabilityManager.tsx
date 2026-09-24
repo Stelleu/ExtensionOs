@@ -36,6 +36,7 @@ export function AvailabilityManager({
   initialAvailability,
   initialBlocked,
   initialNoticeHours,
+  initialBookingBufferMinutes,
   initialCancellationPolicy,
   initialPaymentLinkUrl,
   initialConfirmationWindowHours,
@@ -46,6 +47,7 @@ export function AvailabilityManager({
   initialAvailability: Availability[];
   initialBlocked: BlockedTime[];
   initialNoticeHours: number;
+  initialBookingBufferMinutes: number;
   initialCancellationPolicy: string;
   initialPaymentLinkUrl: string;
   initialConfirmationWindowHours: number;
@@ -60,6 +62,9 @@ export function AvailabilityManager({
     rowsToSchedule(initialAvailability)
   );
   const [noticeHours, setNoticeHours] = useState(initialNoticeHours ?? 24);
+  const [bookingBufferMinutes, setBookingBufferMinutes] = useState(
+    initialBookingBufferMinutes ?? 30
+  );
   const [cancellationPolicy, setCancellationPolicy] = useState(
     initialCancellationPolicy || DEFAULT_CANCELLATION_POLICY
   );
@@ -91,6 +96,7 @@ export function AvailabilityManager({
         await updateBookingSettings({
           business_id: businessId,
           minimum_booking_notice_hours: noticeHours,
+          booking_buffer_minutes: bookingBufferMinutes,
           cancellation_policy: cancellationPolicy,
           payment_link_url: paymentLinkUrl,
           payment_confirmation_window_hours: confirmationWindowHours,
@@ -163,12 +169,14 @@ export function AvailabilityManager({
         <AvailabilityEditor schedule={schedule} onChange={setSchedule} />
         <BookingSettingsFields
           noticeHours={noticeHours}
+          bookingBufferMinutes={bookingBufferMinutes}
           cancellationPolicy={cancellationPolicy}
           paymentLinkUrl={paymentLinkUrl}
           confirmationWindowHours={confirmationWindowHours}
           prepInstructions={prepInstructions}
           careInstructions={careInstructions}
           onNoticeChange={setNoticeHours}
+          onBookingBufferChange={setBookingBufferMinutes}
           onPolicyChange={setCancellationPolicy}
           onPaymentLinkChange={setPaymentLinkUrl}
           onConfirmationWindowChange={setConfirmationWindowHours}

@@ -2,6 +2,7 @@
 
 import {
   NOTICE_HOUR_OPTIONS,
+  BOOKING_BUFFER_MINUTE_OPTIONS,
   PAYMENT_CONFIRMATION_WINDOW_OPTIONS,
   DEFAULT_PREP_INSTRUCTIONS,
   DEFAULT_AFTERCARE,
@@ -9,12 +10,14 @@ import {
 
 interface BookingSettingsFieldsProps {
   noticeHours: number;
+  bookingBufferMinutes: number;
   cancellationPolicy: string;
   paymentLinkUrl: string;
   confirmationWindowHours: number;
   prepInstructions: string;
   careInstructions: string;
   onNoticeChange: (hours: number) => void;
+  onBookingBufferChange: (minutes: number) => void;
   onPolicyChange: (policy: string) => void;
   onPaymentLinkChange: (url: string) => void;
   onConfirmationWindowChange: (hours: number) => void;
@@ -24,12 +27,14 @@ interface BookingSettingsFieldsProps {
 
 export function BookingSettingsFields({
   noticeHours,
+  bookingBufferMinutes,
   cancellationPolicy,
   paymentLinkUrl,
   confirmationWindowHours,
   prepInstructions,
   careInstructions,
   onNoticeChange,
+  onBookingBufferChange,
   onPolicyChange,
   onPaymentLinkChange,
   onConfirmationWindowChange,
@@ -55,6 +60,27 @@ export function BookingSettingsFields({
             </option>
           ))}
         </select>
+      </label>
+
+      <label className="block">
+        <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+          Buffer between appointments
+        </span>
+        <select
+          value={bookingBufferMinutes}
+          onChange={(e) => onBookingBufferChange(Number(e.target.value))}
+          className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+        >
+          {BOOKING_BUFFER_MINUTE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <p className="mt-2 text-xs text-[#9C8E86]">
+          Breathing room after each appointment before the next client can
+          start.
+        </p>
       </label>
 
       <label className="block">

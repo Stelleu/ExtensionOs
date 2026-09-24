@@ -280,6 +280,7 @@ export async function setAvailability(
 export async function updateBookingSettings(input: {
   business_id: string;
   minimum_booking_notice_hours: number;
+  booking_buffer_minutes?: number;
   cancellation_policy: string;
   payment_link_url?: string | null;
   payment_confirmation_window_hours: number;
@@ -289,11 +290,18 @@ export async function updateBookingSettings(input: {
   const { supabase, user } = await requireUser();
   const allowedNotice = [0, 12, 24, 48];
   const allowedWindow = [2, 4, 12, 24];
+  const allowedBuffer = [0, 15, 30, 45, 60];
   if (!allowedNotice.includes(input.minimum_booking_notice_hours)) {
     throw new Error("Invalid notice period");
   }
   if (!allowedWindow.includes(input.payment_confirmation_window_hours)) {
     throw new Error("Invalid payment confirmation window");
+  }
+  if (
+    input.booking_buffer_minutes !== undefined &&
+    !allowedBuffer.includes(input.booking_buffer_minutes)
+  ) {
+    throw new Error("Invalid booking buffer");
   }
   const policy = input.cancellation_policy.trim();
   if (!policy) throw new Error("Cancellation policy cannot be empty");
@@ -313,6 +321,9 @@ export async function updateBookingSettings(input: {
     .from("businesses")
     .update({
       minimum_booking_notice_hours: input.minimum_booking_notice_hours,
+      ...(input.booking_buffer_minutes !== undefined
+        ? { booking_buffer_minutes: input.booking_buffer_minutes }
+        : {}),
       cancellation_policy: policy,
       payment_link_url: paymentLink,
       payment_confirmation_window_hours: input.payment_confirmation_window_hours,
@@ -401,27 +412,30 @@ export async function getAvailableDatesAction(
   daysAhead = 42
 ): Promise<string[]> {
   const admin = createAdminClient();
-  const { data: availability } = await admin
-    .from("availability")
-    .select("day_of_week")
-    .eq("business_id", businessId);
 
-  const workingDays = new Set((availability ?? []).map((a) => a.day_of_week));
-  if (workingDays.size === 0) return [];
-
-  const dates: string[] = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const start = new Date(today);
+  start.setDate(today.getDate() + 1);
+  const end = new Date(today);
+  end.setDate(today.getDate() + daysAhead);
 
-  for (let i = 1; i <= daysAhead; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    if (!workingDays.has(d.getDay())) continue;
-    const iso = formatDateISO(d);
-    const slots = await getAvailableSlotsAction(businessId, serviceId, iso);
-    if (slots.length > 0) dates.push(iso);
+  console.time("getAvailableDatesAction");
+  try {
+    const { data, error } = await admin.rpc("get_available_dates", {
+      p_business_id: businessId,
+      p_service_id: serviceId,
+      p_start_date: formatDateISO(start),
+      p_end_date: formatDateISO(end),
+    });
+    if (error) throw new Error(error.message);
+
+    return (data ?? []).map((row: { available_date: string }) =>
+      String(row.available_date).slice(0, 10)
+    );
+  } finally {
+    console.timeEnd("getAvailableDatesAction");
   }
-  return dates;
 }
 
 export interface CreateBookingInput {

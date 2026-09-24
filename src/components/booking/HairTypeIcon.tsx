@@ -37,6 +37,41 @@ export function HairTypeIcon({
 /** @deprecated Prefer HairTypeIcon */
 export const HairSubtypeIcon = HairTypeIcon;
 
+/**
+ * Map an addon texture label (straight, body-wave, kinky-curly…) to the
+ * same strand path used by the natural hair-type picker.
+ */
+export function strandPathForAddonTexture(texture: string): string {
+  const t = texture.toLowerCase().replace(/[_ ]+/g, "-");
+
+  if (t.includes("straight") || t === "yaki" || t.includes("silky")) {
+    return STRAND_PATHS["1"];
+  }
+  if (t.includes("deep-wave") || t.includes("deepwave") || t === "deep") {
+    return STRAND_PATHS["2c"];
+  }
+  if (
+    t.includes("body") ||
+    t.includes("loose-wave") ||
+    (t.includes("wave") && !t.includes("kinky"))
+  ) {
+    // Current body-wave placeholder ≈ soft wave (2a)
+    return STRAND_PATHS["2a"];
+  }
+  if (
+    t.includes("kinky-curly") ||
+    t.includes("curly") ||
+    t.includes("water-wave")
+  ) {
+    return STRAND_PATHS["3b"];
+  }
+  if (t.includes("kinky") || t.includes("coil") || t.includes("afro")) {
+    return STRAND_PATHS["4a"];
+  }
+
+  return STRAND_PATHS["2a"];
+}
+
 const STRAND_PATHS: Record<HairTextureSubtype, string> = {
   // Straight — one clean vertical line
   "1": "M12 4 V52",

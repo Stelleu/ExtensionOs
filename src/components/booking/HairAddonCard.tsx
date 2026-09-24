@@ -1,6 +1,8 @@
 import type { HairAddonPriceEntry } from "@/types/database";
 import { formatHairLength, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { strandPathForAddonTexture } from "@/components/booking/HairTypeIcon";
+import { normalizeHairTextureKey } from "@/lib/salon-helpers";
 
 interface HairAddonCardProps {
   entry: HairAddonPriceEntry;
@@ -104,10 +106,11 @@ function HairAddonPlaceholder({ texture }: { texture: string }) {
         aria-hidden
       >
         <path
-          d="M12 4 C18 12 6 20 12 28 C18 36 6 44 12 52"
+          d={strandPathForAddonTexture(texture)}
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
       <span className="text-[9px] uppercase tracking-wider text-[#9C8E86]">
@@ -135,11 +138,15 @@ export function HairAddonCarousel({
   if (entries.length === 0) return null;
 
   const recommendedSet = new Set(
-    recommendedTextures.map((t) => t.toLowerCase())
+    recommendedTextures.map((t) => normalizeHairTextureKey(t))
   );
   const ordered = [
-    ...entries.filter((e) => recommendedSet.has(e.texture.toLowerCase())),
-    ...entries.filter((e) => !recommendedSet.has(e.texture.toLowerCase())),
+    ...entries.filter((e) =>
+      recommendedSet.has(normalizeHairTextureKey(e.texture))
+    ),
+    ...entries.filter(
+      (e) => !recommendedSet.has(normalizeHairTextureKey(e.texture))
+    ),
   ];
 
   return (
@@ -152,7 +159,9 @@ export function HairAddonCarousel({
           const selected =
             entry.length === selectedLength &&
             entry.texture === selectedTexture;
-          const recommended = recommendedSet.has(entry.texture.toLowerCase());
+          const recommended = recommendedSet.has(
+            normalizeHairTextureKey(entry.texture)
+          );
           return (
             <HairAddonCard
               key={`${entry.length}-${entry.texture}`}

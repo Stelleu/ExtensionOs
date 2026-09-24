@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   getRecommendationFor,
   hairTypeFamily,
+  normalizeHairTextureKey,
+  pricingRowsForRecommendations,
+  resolveRecommendations,
   type HairTextureSubtype,
 } from "@/lib/salon-helpers";
 
@@ -60,5 +63,35 @@ describe("getRecommendationFor", () => {
     expect(
       getRecommendationFor("3c", { "3c": ["  ", "body-wavy", 42 as never] })
     ).toEqual(["body-wavy"]);
+  });
+});
+
+describe("resolveRecommendations", () => {
+  it("prefers curated recommendations", () => {
+    expect(
+      resolveRecommendations("2a", { "2a": ["deep-wave"] }, [
+        "body-wavy",
+        "deep-wave",
+      ])
+    ).toEqual(["deep-wave"]);
+  });
+
+  it("falls back to family defaults matched to available textures", () => {
+    expect(
+      resolveRecommendations("2a", {}, ["straight", "body-wavy", "kinky"])
+    ).toEqual(["body-wavy"]);
+    expect(resolveRecommendations("1", {}, ["straight", "yaki"])).toEqual([
+      "straight",
+      "yaki",
+    ]);
+  });
+
+  it("matches body-wave alias to body-wavy pricing", () => {
+    expect(
+      pricingRowsForRecommendations(["body-wave"], [
+        { length: '18"', texture: "body-wavy", price: 120 },
+      ])
+    ).toHaveLength(1);
+    expect(normalizeHairTextureKey("body-wave")).toBe("body-wavy");
   });
 });

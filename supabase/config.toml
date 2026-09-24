@@ -3,6 +3,9 @@
 [functions.notify-stylist]
 verify_jwt = true
 
+[functions.notify-stylist-reminder]
+verify_jwt = true
+
 [functions.confirm-booking]
 verify_jwt = false
 
