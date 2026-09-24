@@ -1,4 +1,5 @@
 import type { SalonProfile } from "@/types/salon";
+import { googleMapsSearchUrl } from "@/lib/maps";
 
 interface ContactProps {
   salon: SalonProfile;
@@ -9,6 +10,7 @@ export function Contact({ salon }: ContactProps) {
   const email = salon.email?.trim() ?? "";
   const instagram = salon.instagram?.trim() ?? "";
   const instagramHandle = instagram.replace(/^@/, "");
+  const address = salon.address?.trim() ?? "";
 
   return (
     <section id="contact" className="border-t border-[#E5DDD4] py-28 lg:py-36">
@@ -34,7 +36,11 @@ export function Contact({ salon }: ContactProps) {
           </div>
 
           <div className="divide-y divide-[#E5DDD4] border-y border-[#E5DDD4]">
-            <ContactRow label="Location" value={salon.address} />
+            <ContactRow
+              label="Location"
+              value={address}
+              href={address ? googleMapsSearchUrl(address) : undefined}
+            />
             <ContactRow
               label="Email"
               value={email}

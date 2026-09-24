@@ -13,6 +13,7 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { BookingWidget } from "./BookingWidget";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
+import { BackToTopButton } from "@/components/templates/BackToTopButton";
 
 interface SoftEditorialTemplateProps {
   salon: SalonProfile;
@@ -47,6 +48,7 @@ export function SoftEditorialTemplate({ salon }: SoftEditorialTemplateProps) {
         <InstagramStrip salon={salon} />
       </main>
       <Footer salon={salon} />
+      <BackToTopButton variant="soft" />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { BusinessProfileForm } from "@/components/dashboard/BusinessProfileForm";
 import { HairTypeGallerySection } from "@/components/dashboard/HairTypeGallerySection";
+import { GalleryManagerSection } from "@/components/dashboard/GalleryManagerSection";
 import type { Business } from "@/types/database";
 
 export default async function SettingsPage() {
@@ -26,6 +27,7 @@ export default async function SettingsPage() {
       </p>
       <div className="mt-8 space-y-8">
         <BusinessProfileForm business={business as Business} />
+        <GalleryManagerSection business={business as Business} />
         <HairTypeGallerySection business={business as Business} />
       </div>
     </div>

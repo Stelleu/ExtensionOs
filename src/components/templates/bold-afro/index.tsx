@@ -13,6 +13,7 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { BookingWidget } from "./BookingWidget";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
+import { BackToTopButton } from "@/components/templates/BackToTopButton";
 
 interface BoldAfroTemplateProps {
   salon: SalonProfile;
@@ -54,6 +55,7 @@ export function BoldAfroTemplate({ salon }: BoldAfroTemplateProps) {
         <InstagramStrip salon={salon} />
       </main>
       <Footer salon={salon} />
+      <BackToTopButton variant="bold" />
     </div>
   );
 }

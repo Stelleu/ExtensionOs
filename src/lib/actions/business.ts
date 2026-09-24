@@ -56,6 +56,7 @@ export async function createOrUpdateBusiness(input: {
   hero_image_url?: string | null;
   template_id?: string;
   hair_type_photos?: Record<string, string>;
+  gallery_urls?: string[];
 }) {
   const { supabase, user } = await requireUser();
   const existing = await getOwnBusiness();
@@ -80,6 +81,9 @@ export async function createOrUpdateBusiness(input: {
           : {}),
         ...(input.hair_type_photos != null
           ? { hair_type_photos: input.hair_type_photos }
+          : {}),
+        ...(input.gallery_urls != null
+          ? { gallery_urls: input.gallery_urls }
           : {}),
       })
       .eq("id", existing.id)
@@ -717,6 +721,10 @@ export async function uploadBusinessAsset(
   } else if (kind === "hair-types" && subtype) {
     const safeSubtype = subtype.replace(/[^a-z0-9]/gi, "").toLowerCase();
     path = `${user.id}/hair-types/${safeSubtype || "type"}.${ext}`;
+  } else if (kind === "gallery") {
+    const businessId = (formData.get("business_id") as string | null)?.trim();
+    const folder = businessId || user.id;
+    path = `${folder}/gallery/${crypto.randomUUID()}.${ext}`;
   } else {
     path = `${user.id}/${kind}-${Date.now()}.${ext}`;
   }

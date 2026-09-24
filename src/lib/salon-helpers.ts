@@ -291,6 +291,14 @@ export function parseHairTypePhotos(raw: unknown): Record<string, string> {
   return out;
 }
 
+/** Ordered public gallery image URLs from businesses.gallery_urls. */
+export function parseGalleryUrls(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((item) => (typeof item === "string" ? item.trim() : ""))
+    .filter(Boolean);
+}
+
 /** Match pricing rows whose texture appears in a recommendation label list. */
 export function pricingRowsForRecommendations(
   recommendations: string[],

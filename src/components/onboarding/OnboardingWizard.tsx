@@ -18,7 +18,11 @@ import {
   type DayAvailability,
 } from "@/lib/salon-helpers";
 import { HairAddonPricingEditor } from "@/components/services/HairAddonPricingEditor";
-import type { HairAddonPriceEntry } from "@/types/database";
+import { HairTypeRecommendationsEditor } from "@/components/services/HairTypeRecommendationsEditor";
+import type {
+  HairAddonPriceEntry,
+  HairTypeRecommendations,
+} from "@/types/database";
 import { AvailabilityEditor } from "@/components/availability/AvailabilityEditor";
 import { BookingSettingsFields } from "@/components/availability/BookingSettingsFields";
 import { OnboardingSitePreview } from "@/components/onboarding/OnboardingSitePreview";
@@ -57,6 +61,7 @@ export function OnboardingWizard() {
     requires_hair_addon: true,
     is_extension_service: true,
     hair_addon_pricing: DEFAULT_HAIR_ADDON_PRICING as HairAddonPriceEntry[],
+    hair_type_recommendations: {} as HairTypeRecommendations,
   });
 
   const [schedule, setSchedule] = useState<DayAvailability[]>(defaultWeekSchedule);
@@ -463,12 +468,21 @@ export function OnboardingWizard() {
             }
           />
           {service.requires_hair_addon && (
-            <HairAddonPricingEditor
-              rows={service.hair_addon_pricing}
-              onChange={(hair_addon_pricing: HairAddonPriceEntry[]) =>
-                setService({ ...service, hair_addon_pricing })
-              }
-            />
+            <>
+              <HairAddonPricingEditor
+                rows={service.hair_addon_pricing}
+                onChange={(hair_addon_pricing: HairAddonPriceEntry[]) =>
+                  setService({ ...service, hair_addon_pricing })
+                }
+              />
+              <HairTypeRecommendationsEditor
+                pricing={service.hair_addon_pricing}
+                value={service.hair_type_recommendations}
+                onChange={(hair_type_recommendations) =>
+                  setService({ ...service, hair_type_recommendations })
+                }
+              />
+            </>
           )}
           <Toggle
             label="Extension service (enables 6-week maintenance reminder)"

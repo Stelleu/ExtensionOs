@@ -10,6 +10,7 @@ import {
   parseHairAddonPricing,
   parseHairTypePhotos,
   parseHairTypeRecommendations,
+  parseGalleryUrls,
 } from "@/lib/salon-helpers";
 
 export function serviceToSalonService(service: Service): SalonService {
@@ -60,7 +61,11 @@ export function businessToSalonProfile(
     address: business.location || "",
     hairTypePhotos: parseHairTypePhotos(business.hair_type_photos),
     services: services.filter((s) => s.active).map(serviceToSalonService),
-    gallery: [],
+    gallery: parseGalleryUrls(business.gallery_urls).map((src, i) => ({
+      id: `gallery-${i}`,
+      src,
+      alt: `${business.name} gallery ${i + 1}`,
+    })),
     reviews: [],
     faqs: [
       {
@@ -123,6 +128,7 @@ export function draftToSalonProfile(draft: {
       prep_instructions: DEFAULT_PREP_INSTRUCTIONS,
       care_instructions: DEFAULT_AFTERCARE,
       hair_type_photos: {},
+      gallery_urls: [],
       created_at: "",
     },
     []

@@ -13,6 +13,7 @@ import { BookingForm } from "@/components/booking/BookingForm";
 import { BookingWidget } from "./BookingWidget";
 import { Contact } from "./Contact";
 import { Footer } from "./Footer";
+import { BackToTopButton } from "@/components/templates/BackToTopButton";
 
 interface LuxuryBlackGoldTemplateProps {
   salon: SalonProfile;
@@ -36,6 +37,7 @@ export function LuxuryBlackGoldTemplate({ salon }: LuxuryBlackGoldTemplateProps)
         <Contact salon={salon} />
       </main>
       <Footer salon={salon} />
+      <BackToTopButton variant="luxury" />
     </div>
   );
 }

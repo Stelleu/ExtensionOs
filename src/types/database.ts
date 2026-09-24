@@ -98,6 +98,7 @@ export interface Business {
   prep_instructions: string;
   care_instructions: string;
   hair_type_photos: HairTypePhotos;
+  gallery_urls: string[];
   created_at: string;
 }
 
