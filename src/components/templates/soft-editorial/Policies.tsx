@@ -26,6 +26,11 @@ export function Policies({ salon }: PoliciesProps) {
             </div>
           ))}
         </div>
+        {salon.loyaltyNote ? (
+          <p className="mt-12 text-center text-xs text-[#9C9088]">
+            {salon.loyaltyNote}
+          </p>
+        ) : null}
       </div>
     </section>
   );

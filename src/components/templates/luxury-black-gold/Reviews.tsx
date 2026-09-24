@@ -35,12 +35,18 @@ export function Reviews({ salon }: ReviewsProps) {
               <p className={`mt-6 flex-1 text-sm leading-relaxed ${i === 1 ? "text-white/80" : "text-[#6B5E58]"}`}>
                 &ldquo;{review.text}&rdquo;
               </p>
-              <footer className={`mt-8 border-t pt-6 ${i === 1 ? "border-white/10" : "border-[#E8E0D8]"}`}>
-                <cite className="not-italic font-medium">{review.author}</cite>
-                <p className={`mt-1 text-xs ${i === 1 ? "text-white/40" : "text-[#9C8E86]"}`}>
-                  {review.date}
-                </p>
-              </footer>
+              {(review.author || review.date) && (
+                <footer className={`mt-8 border-t pt-6 ${i === 1 ? "border-white/10" : "border-[#E8E0D8]"}`}>
+                  {review.author ? (
+                    <cite className="not-italic font-medium">{review.author}</cite>
+                  ) : null}
+                  {review.date ? (
+                    <p className={`mt-1 text-xs ${i === 1 ? "text-white/40" : "text-[#9C8E86]"}`}>
+                      {review.date}
+                    </p>
+                  ) : null}
+                </footer>
+              )}
             </blockquote>
           ))}
         </div>

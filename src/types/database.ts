@@ -99,6 +99,9 @@ export interface Business {
   care_instructions: string;
   hair_type_photos: HairTypePhotos;
   gallery_urls: string[];
+  loyalty_enabled: boolean;
+  loyalty_visits_required: number;
+  loyalty_discount_percent: number;
   created_at: string;
 }
 
@@ -176,6 +179,18 @@ export interface BlockedTime {
   reason: string | null;
 }
 
+export interface Review {
+  id: string;
+  business_id: string;
+  booking_id: string;
+  client_id: string;
+  rating: number | null;
+  comment: string | null;
+  submission_token: string;
+  submitted_at: string | null;
+  created_at: string;
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -231,6 +246,13 @@ export type Database = {
         Update: Partial<BlockedTime>;
         Relationships: [];
       };
+      reviews: {
+        Row: Review;
+        Insert: Partial<Review> &
+          Pick<Review, "business_id" | "booking_id" | "client_id">;
+        Update: Partial<Review>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -250,6 +272,18 @@ export type Database = {
           p_end_date: string;
         };
         Returns: { available_date: string }[];
+      };
+      get_revenue_by_month: {
+        Args: {
+          p_business_id: string;
+          p_months?: number;
+        };
+        Returns: {
+          month_start: string;
+          deposits_collected: number;
+          service_value: number;
+          booking_count: number;
+        }[];
       };
     };
     Enums: {

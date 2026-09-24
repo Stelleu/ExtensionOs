@@ -26,6 +26,7 @@ export default async function DashboardLayout({
     { href: "/dashboard", label: "Overview" },
     { href: "/dashboard/bookings", label: "Bookings" },
     { href: "/dashboard/clients", label: "Clients" },
+    { href: "/dashboard/revenue", label: "Revenue" },
     { href: "/dashboard/services", label: "Services" },
     { href: "/dashboard/availability", label: "Availability" },
     { href: "/dashboard/settings", label: "Profile" },

@@ -16,6 +16,9 @@ interface BookingSettingsFieldsProps {
   confirmationWindowHours: number;
   prepInstructions: string;
   careInstructions: string;
+  loyaltyEnabled: boolean;
+  loyaltyVisitsRequired: number;
+  loyaltyDiscountPercent: number;
   onNoticeChange: (hours: number) => void;
   onBookingBufferChange: (minutes: number) => void;
   onPolicyChange: (policy: string) => void;
@@ -23,6 +26,9 @@ interface BookingSettingsFieldsProps {
   onConfirmationWindowChange: (hours: number) => void;
   onPrepInstructionsChange: (value: string) => void;
   onCareInstructionsChange: (value: string) => void;
+  onLoyaltyEnabledChange: (enabled: boolean) => void;
+  onLoyaltyVisitsRequiredChange: (visits: number) => void;
+  onLoyaltyDiscountPercentChange: (percent: number) => void;
 }
 
 export function BookingSettingsFields({
@@ -33,6 +39,9 @@ export function BookingSettingsFields({
   confirmationWindowHours,
   prepInstructions,
   careInstructions,
+  loyaltyEnabled,
+  loyaltyVisitsRequired,
+  loyaltyDiscountPercent,
   onNoticeChange,
   onBookingBufferChange,
   onPolicyChange,
@@ -40,6 +49,9 @@ export function BookingSettingsFields({
   onConfirmationWindowChange,
   onPrepInstructionsChange,
   onCareInstructionsChange,
+  onLoyaltyEnabledChange,
+  onLoyaltyVisitsRequiredChange,
+  onLoyaltyDiscountPercentChange,
 }: BookingSettingsFieldsProps) {
   return (
     <div className="space-y-4">
@@ -169,6 +181,61 @@ export function BookingSettingsFields({
           from the 6-week maintenance reminder.
         </p>
       </label>
+
+      <div className="border-t border-[#E8E0D8] pt-4">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={loyaltyEnabled}
+            onChange={(e) => onLoyaltyEnabledChange(e.target.checked)}
+            className="mt-1 h-4 w-4 rounded border-[#E8E0D8] text-[#1A1614] focus:ring-[#B8956E]"
+          />
+          <span>
+            <span className="block text-sm font-medium text-[#1A1614]">
+              Loyalty program
+            </span>
+            <span className="mt-1 block text-xs text-[#9C8E86]">
+              Track visit milestones for you to apply a discount manually —
+              prices are never changed automatically.
+            </span>
+          </span>
+        </label>
+
+        {loyaltyEnabled && (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+                Visits required
+              </span>
+              <input
+                type="number"
+                min={2}
+                max={50}
+                value={loyaltyVisitsRequired}
+                onChange={(e) =>
+                  onLoyaltyVisitsRequiredChange(Number(e.target.value))
+                }
+                className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-2 block text-xs uppercase tracking-wider text-[#9C8E86]">
+                Discount %
+              </span>
+              <input
+                type="number"
+                min={5}
+                max={50}
+                value={loyaltyDiscountPercent}
+                onChange={(e) =>
+                  onLoyaltyDiscountPercentChange(Number(e.target.value))
+                }
+                className="w-full rounded-xl border border-[#E8E0D8] px-4 py-3 text-sm outline-none focus:border-[#B8956E]"
+              />
+            </label>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

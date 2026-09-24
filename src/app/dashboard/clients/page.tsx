@@ -11,7 +11,9 @@ export default async function ClientsPage() {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id")
+    .select(
+      "id, loyalty_enabled, loyalty_visits_required, loyalty_discount_percent"
+    )
     .eq("owner_id", user.id)
     .single();
   if (!business) redirect("/onboarding");
@@ -32,7 +34,18 @@ export default async function ClientsPage() {
         Health notes are only visible on individual booking cards, never in
         lists or exports.
       </p>
-      <ClientsList clients={clients ?? []} />
+      <ClientsList
+        clients={clients ?? []}
+        loyalty={
+          business.loyalty_enabled
+            ? {
+                enabled: true,
+                visitsRequired: business.loyalty_visits_required ?? 5,
+                discountPercent: business.loyalty_discount_percent ?? 10,
+              }
+            : null
+        }
+      />
     </div>
   );
 }

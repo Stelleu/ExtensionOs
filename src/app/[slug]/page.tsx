@@ -1,10 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { businessToSalonProfile } from "@/lib/mappers";
+import {
+  businessToSalonProfile,
+  submittedReviewsToSalonReviews,
+} from "@/lib/mappers";
 import { SalonTemplate } from "@/components/templates/SalonTemplate";
 import { getSalonBySlug } from "@/lib/salons";
-import type { Business, Service } from "@/types/database";
+import type { Business, Review, Service } from "@/types/database";
 
 interface SalonPageProps {
   params: Promise<{ slug: string }>;
@@ -51,15 +54,29 @@ export default async function SalonPage({ params }: SalonPageProps) {
   const business = data as Business | null;
 
   if (business) {
-    const { data: serviceRows } = await supabase
-      .from("services")
-      .select("*")
-      .eq("business_id", business.id)
-      .eq("active", true);
+    const [{ data: serviceRows }, { data: reviewRows }] = await Promise.all([
+      supabase
+        .from("services")
+        .select("*")
+        .eq("business_id", business.id)
+        .eq("active", true),
+      supabase
+        .from("reviews")
+        .select("id, rating, comment, submitted_at")
+        .eq("business_id", business.id)
+        .not("submitted_at", "is", null)
+        .order("submitted_at", { ascending: false }),
+    ]);
 
     const salon = businessToSalonProfile(
       business,
-      (serviceRows as Service[]) ?? []
+      (serviceRows as Service[]) ?? [],
+      submittedReviewsToSalonReviews(
+        (reviewRows as Pick<
+          Review,
+          "id" | "rating" | "comment" | "submitted_at"
+        >[]) ?? []
+      )
     );
     return <SalonTemplate salon={salon} />;
   }

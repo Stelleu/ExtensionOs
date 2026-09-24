@@ -42,6 +42,9 @@ export function AvailabilityManager({
   initialConfirmationWindowHours,
   initialPrepInstructions,
   initialCareInstructions,
+  initialLoyaltyEnabled = false,
+  initialLoyaltyVisitsRequired = 5,
+  initialLoyaltyDiscountPercent = 10,
 }: {
   businessId: string;
   initialAvailability: Availability[];
@@ -53,6 +56,9 @@ export function AvailabilityManager({
   initialConfirmationWindowHours: number;
   initialPrepInstructions: string;
   initialCareInstructions: string;
+  initialLoyaltyEnabled?: boolean;
+  initialLoyaltyVisitsRequired?: number;
+  initialLoyaltyDiscountPercent?: number;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -78,6 +84,13 @@ export function AvailabilityManager({
   const [careInstructions, setCareInstructions] = useState(
     initialCareInstructions || DEFAULT_AFTERCARE
   );
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(initialLoyaltyEnabled);
+  const [loyaltyVisitsRequired, setLoyaltyVisitsRequired] = useState(
+    initialLoyaltyVisitsRequired
+  );
+  const [loyaltyDiscountPercent, setLoyaltyDiscountPercent] = useState(
+    initialLoyaltyDiscountPercent
+  );
 
   const [blockDate, setBlockDate] = useState("");
   const [blockStart, setBlockStart] = useState("");
@@ -102,6 +115,9 @@ export function AvailabilityManager({
           payment_confirmation_window_hours: confirmationWindowHours,
           prep_instructions: prepInstructions,
           care_instructions: careInstructions,
+          loyalty_enabled: loyaltyEnabled,
+          loyalty_visits_required: loyaltyVisitsRequired,
+          loyalty_discount_percent: loyaltyDiscountPercent,
         });
         setSaved(true);
         router.refresh();
@@ -175,6 +191,9 @@ export function AvailabilityManager({
           confirmationWindowHours={confirmationWindowHours}
           prepInstructions={prepInstructions}
           careInstructions={careInstructions}
+          loyaltyEnabled={loyaltyEnabled}
+          loyaltyVisitsRequired={loyaltyVisitsRequired}
+          loyaltyDiscountPercent={loyaltyDiscountPercent}
           onNoticeChange={setNoticeHours}
           onBookingBufferChange={setBookingBufferMinutes}
           onPolicyChange={setCancellationPolicy}
@@ -182,6 +201,9 @@ export function AvailabilityManager({
           onConfirmationWindowChange={setConfirmationWindowHours}
           onPrepInstructionsChange={setPrepInstructions}
           onCareInstructionsChange={setCareInstructions}
+          onLoyaltyEnabledChange={setLoyaltyEnabled}
+          onLoyaltyVisitsRequiredChange={setLoyaltyVisitsRequired}
+          onLoyaltyDiscountPercentChange={setLoyaltyDiscountPercent}
         />
         <button
           type="submit"

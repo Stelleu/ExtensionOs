@@ -1,5 +1,5 @@
-import type { Business, Service } from "@/types/database";
-import type { SalonProfile, SalonService, TemplateId } from "@/types/salon";
+import type { Business, Review, Service } from "@/types/database";
+import type { SalonProfile, SalonReview, SalonService } from "@/types/salon";
 import { normalizeTemplateId } from "@/lib/templates";
 import {
   DEFAULT_AFTERCARE,
@@ -11,7 +11,30 @@ import {
   parseHairTypePhotos,
   parseHairTypeRecommendations,
   parseGalleryUrls,
+  loyaltyPublicNote,
 } from "@/lib/salon-helpers";
+
+export function submittedReviewsToSalonReviews(
+  reviews: Pick<Review, "id" | "rating" | "comment" | "submitted_at">[]
+): SalonReview[] {
+  return reviews
+    .filter(
+      (r): r is typeof r & { rating: number; submitted_at: string } =>
+        r.rating != null && r.submitted_at != null
+    )
+    .map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      text: (r.comment ?? "").trim() || "Great experience.",
+      date: formatReviewDate(r.submitted_at),
+    }));
+}
+
+function formatReviewDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
 
 export function serviceToSalonService(service: Service): SalonService {
   return {
@@ -33,7 +56,8 @@ export function serviceToSalonService(service: Service): SalonService {
 
 export function businessToSalonProfile(
   business: Business,
-  services: Service[]
+  services: Service[],
+  reviews: SalonReview[] = []
 ): SalonProfile {
   const initials = business.name
     .split(/\s+/)
@@ -66,7 +90,7 @@ export function businessToSalonProfile(
       src,
       alt: `${business.name} gallery ${i + 1}`,
     })),
-    reviews: [],
+    reviews,
     faqs: [
       {
         question: "Do I need a deposit?",
@@ -87,6 +111,12 @@ export function businessToSalonProfile(
       cancellation: business.cancellation_policy || DEFAULT_CANCELLATION_POLICY,
       aftercare: DEFAULT_AFTERCARE,
     },
+    loyaltyNote: business.loyalty_enabled
+      ? loyaltyPublicNote(
+          business.loyalty_visits_required ?? 5,
+          business.loyalty_discount_percent ?? 10
+        )
+      : null,
   };
 }
 
@@ -129,6 +159,9 @@ export function draftToSalonProfile(draft: {
       care_instructions: DEFAULT_AFTERCARE,
       hair_type_photos: {},
       gallery_urls: [],
+      loyalty_enabled: false,
+      loyalty_visits_required: 5,
+      loyalty_discount_percent: 10,
       created_at: "",
     },
     []

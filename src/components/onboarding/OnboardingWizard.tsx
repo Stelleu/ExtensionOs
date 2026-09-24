@@ -76,6 +76,9 @@ export function OnboardingWizard() {
     DEFAULT_PREP_INSTRUCTIONS
   );
   const [careInstructions, setCareInstructions] = useState(DEFAULT_AFTERCARE);
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(false);
+  const [loyaltyVisitsRequired, setLoyaltyVisitsRequired] = useState(5);
+  const [loyaltyDiscountPercent, setLoyaltyDiscountPercent] = useState(10);
   const [businessSlug, setBusinessSlug] = useState<string | null>(null);
   const [setupReady, setSetupReady] = useState(false);
   const [step1Panel, setStep1Panel] = useState<"edit" | "preview">("edit");
@@ -173,6 +176,15 @@ export function OnboardingWizard() {
         if (biz.care_instructions) {
           setCareInstructions(biz.care_instructions);
         }
+        if (typeof biz.loyalty_enabled === "boolean") {
+          setLoyaltyEnabled(biz.loyalty_enabled);
+        }
+        if (typeof biz.loyalty_visits_required === "number") {
+          setLoyaltyVisitsRequired(biz.loyalty_visits_required);
+        }
+        if (typeof biz.loyalty_discount_percent === "number") {
+          setLoyaltyDiscountPercent(biz.loyalty_discount_percent);
+        }
         setStep(2);
       } catch (err) {
         const raw = err instanceof Error ? err.message : String(err);
@@ -228,6 +240,9 @@ export function OnboardingWizard() {
           payment_confirmation_window_hours: confirmationWindowHours,
           prep_instructions: prepInstructions,
           care_instructions: careInstructions,
+          loyalty_enabled: loyaltyEnabled,
+          loyalty_visits_required: loyaltyVisitsRequired,
+          loyalty_discount_percent: loyaltyDiscountPercent,
         });
         setStep(4);
         runGenerating();
@@ -255,6 +270,9 @@ export function OnboardingWizard() {
           payment_confirmation_window_hours: confirmationWindowHours,
           prep_instructions: prepInstructions,
           care_instructions: careInstructions,
+          loyalty_enabled: loyaltyEnabled,
+          loyalty_visits_required: loyaltyVisitsRequired,
+          loyalty_discount_percent: loyaltyDiscountPercent,
         });
         setStep(4);
         runGenerating();
@@ -529,6 +547,9 @@ export function OnboardingWizard() {
             confirmationWindowHours={confirmationWindowHours}
             prepInstructions={prepInstructions}
             careInstructions={careInstructions}
+            loyaltyEnabled={loyaltyEnabled}
+            loyaltyVisitsRequired={loyaltyVisitsRequired}
+            loyaltyDiscountPercent={loyaltyDiscountPercent}
             onNoticeChange={setNoticeHours}
             onBookingBufferChange={setBookingBufferMinutes}
             onPolicyChange={setCancellationPolicy}
@@ -536,6 +557,9 @@ export function OnboardingWizard() {
             onConfirmationWindowChange={setConfirmationWindowHours}
             onPrepInstructionsChange={setPrepInstructions}
             onCareInstructionsChange={setCareInstructions}
+            onLoyaltyEnabledChange={setLoyaltyEnabled}
+            onLoyaltyVisitsRequiredChange={setLoyaltyVisitsRequired}
+            onLoyaltyDiscountPercentChange={setLoyaltyDiscountPercent}
           />
 
           <div className="flex flex-col gap-3 sm:flex-row">

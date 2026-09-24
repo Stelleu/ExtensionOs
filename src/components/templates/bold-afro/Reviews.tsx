@@ -45,12 +45,18 @@ export function Reviews({ salon }: ReviewsProps) {
             <p className="mt-5 text-base font-semibold leading-snug sm:text-lg">
               &ldquo;{review.text}&rdquo;
             </p>
-            <footer className="mt-8">
-              <cite className="not-italic text-sm font-extrabold uppercase tracking-wider">
-                {review.author}
-              </cite>
-              <p className="mt-1 text-xs opacity-70">{review.date}</p>
-            </footer>
+            {(review.author || review.date) && (
+              <footer className="mt-8">
+                {review.author ? (
+                  <cite className="not-italic text-sm font-extrabold uppercase tracking-wider">
+                    {review.author}
+                  </cite>
+                ) : null}
+                {review.date ? (
+                  <p className="mt-1 text-xs opacity-70">{review.date}</p>
+                ) : null}
+              </footer>
+            )}
           </blockquote>
         ))}
       </div>

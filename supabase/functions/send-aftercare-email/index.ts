@@ -35,6 +35,8 @@ Deno.serve(async (req) => {
       .select(
         `
         id,
+        business_id,
+        client_id,
         status,
         businesses ( name, care_instructions ),
         clients ( name, email )
@@ -81,6 +83,34 @@ Deno.serve(async (req) => {
       business?.care_instructions?.trim() ||
       "Avoid oil-based products at the bonds, sleep with hair in a loose braid, and book maintenance every 6–8 weeks for best results.";
 
+    const siteUrl = Deno.env.get("SITE_URL") ?? "http://localhost:3000";
+    let reviewToken: string | null = null;
+
+    const { data: existingReview } = await supabase
+      .from("reviews")
+      .select("submission_token, submitted_at")
+      .eq("booking_id", booking_id)
+      .maybeSingle();
+
+    if (existingReview) {
+      if (!existingReview.submitted_at) {
+        reviewToken = existingReview.submission_token as string;
+      }
+    } else {
+      const { data: created, error: reviewError } = await supabase
+        .from("reviews")
+        .insert({
+          business_id: booking.business_id,
+          booking_id: booking.id,
+          client_id: booking.client_id,
+        })
+        .select("submission_token")
+        .single();
+
+      if (reviewError) throw new Error(reviewError.message);
+      reviewToken = created.submission_token as string;
+    }
+
     await sendTemplatedEmail({
       to: client.email,
       subject: "Caring for your new look",
@@ -92,6 +122,12 @@ Deno.serve(async (req) => {
           body: careText,
         },
       ],
+      ...(reviewToken
+        ? {
+            ctaUrl: `${siteUrl}/leave-review/${reviewToken}`,
+            ctaLabel: "Leave a review",
+          }
+        : {}),
       footer:
         "This is general guidance your stylist can personalise aftercare at your next visit.",
     });

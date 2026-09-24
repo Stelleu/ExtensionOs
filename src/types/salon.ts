@@ -30,7 +30,8 @@ export interface SalonService {
 
 export interface SalonReview {
   id: string;
-  author: string;
+  /** Optional; real client reviews stay anonymous (no name shown). */
+  author?: string;
   rating: number;
   text: string;
   date: string;
@@ -73,4 +74,6 @@ export interface SalonProfile {
     cancellation: string;
     aftercare: string;
   };
+  /** Quiet public-page line when loyalty is enabled; omit when disabled. */
+  loyaltyNote?: string | null;
 }

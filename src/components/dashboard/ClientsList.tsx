@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { DeleteClientButton } from "@/components/dashboard/DeleteClientButton";
+import { loyaltyProgressLabel } from "@/lib/salon-helpers";
 
 export type ClientListItem = {
   id: string;
@@ -12,7 +13,19 @@ export type ClientListItem = {
   image_consent: boolean;
 };
 
-export function ClientsList({ clients }: { clients: ClientListItem[] }) {
+export type LoyaltySettings = {
+  enabled: boolean;
+  visitsRequired: number;
+  discountPercent: number;
+};
+
+export function ClientsList({
+  clients,
+  loyalty,
+}: {
+  clients: ClientListItem[];
+  loyalty?: LoyaltySettings | null;
+}) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -20,6 +33,8 @@ export function ClientsList({ clients }: { clients: ClientListItem[] }) {
     if (!q) return clients;
     return clients.filter((c) => c.name.toLowerCase().includes(q));
   }, [clients, query]);
+
+  const showLoyalty = Boolean(loyalty?.enabled);
 
   return (
     <div className="mt-8 space-y-4">
@@ -54,7 +69,24 @@ export function ClientsList({ clients }: { clients: ClientListItem[] }) {
                   {c.email}
                   {c.phone ? ` · ${c.phone}` : ""}
                 </td>
-                <td className="px-4 py-3">{c.visit_count}</td>
+                <td className="px-4 py-3">
+                  {showLoyalty && loyalty ? (
+                    <div>
+                      <p className="font-medium text-[#1A1614]">
+                        {c.visit_count}
+                      </p>
+                      <p className="mt-0.5 text-xs text-[#9C8E86]">
+                        {loyaltyProgressLabel(
+                          c.visit_count,
+                          loyalty.visitsRequired,
+                          loyalty.discountPercent
+                        )}
+                      </p>
+                    </div>
+                  ) : (
+                    c.visit_count
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-2">
                     <span

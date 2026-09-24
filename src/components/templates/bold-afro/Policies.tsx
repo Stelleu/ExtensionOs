@@ -29,6 +29,11 @@ export function Policies({ salon }: PoliciesProps) {
             </div>
           ))}
         </div>
+        {salon.loyaltyNote ? (
+          <p className="mt-8 text-center text-xs font-semibold text-[#5C4A3A]/70">
+            {salon.loyaltyNote}
+          </p>
+        ) : null}
       </div>
     </section>
   );

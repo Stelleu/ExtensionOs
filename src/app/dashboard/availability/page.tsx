@@ -14,7 +14,7 @@ export default async function AvailabilityPage() {
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "id, minimum_booking_notice_hours, booking_buffer_minutes, cancellation_policy, payment_link_url, payment_confirmation_window_hours, prep_instructions, care_instructions"
+      "id, minimum_booking_notice_hours, booking_buffer_minutes, cancellation_policy, payment_link_url, payment_confirmation_window_hours, prep_instructions, care_instructions, loyalty_enabled, loyalty_visits_required, loyalty_discount_percent"
     )
     .eq("owner_id", user.id)
     .single();
@@ -53,6 +53,9 @@ export default async function AvailabilityPage() {
       initialCareInstructions={
         business.care_instructions || DEFAULT_AFTERCARE
       }
+      initialLoyaltyEnabled={business.loyalty_enabled ?? false}
+      initialLoyaltyVisitsRequired={business.loyalty_visits_required ?? 5}
+      initialLoyaltyDiscountPercent={business.loyalty_discount_percent ?? 10}
     />
   );
 }

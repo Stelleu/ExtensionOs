@@ -290,6 +290,9 @@ export async function updateBookingSettings(input: {
   payment_confirmation_window_hours: number;
   prep_instructions?: string;
   care_instructions?: string;
+  loyalty_enabled?: boolean;
+  loyalty_visits_required?: number;
+  loyalty_discount_percent?: number;
 }) {
   const { supabase, user } = await requireUser();
   const allowedNotice = [0, 12, 24, 48];
@@ -319,6 +322,19 @@ export async function updateBookingSettings(input: {
     throw new Error("Care instructions cannot be empty");
   }
 
+  if (input.loyalty_visits_required !== undefined) {
+    const n = input.loyalty_visits_required;
+    if (!Number.isInteger(n) || n < 2 || n > 50) {
+      throw new Error("Visits required must be between 2 and 50");
+    }
+  }
+  if (input.loyalty_discount_percent !== undefined) {
+    const n = input.loyalty_discount_percent;
+    if (!Number.isInteger(n) || n < 5 || n > 50) {
+      throw new Error("Discount percent must be between 5 and 50");
+    }
+  }
+
   const paymentLink = input.payment_link_url?.trim() || null;
 
   const { data, error } = await supabase
@@ -337,6 +353,15 @@ export async function updateBookingSettings(input: {
       ...(careInstructions !== undefined
         ? { care_instructions: careInstructions }
         : {}),
+      ...(input.loyalty_enabled !== undefined
+        ? { loyalty_enabled: input.loyalty_enabled }
+        : {}),
+      ...(input.loyalty_visits_required !== undefined
+        ? { loyalty_visits_required: input.loyalty_visits_required }
+        : {}),
+      ...(input.loyalty_discount_percent !== undefined
+        ? { loyalty_discount_percent: input.loyalty_discount_percent }
+        : {}),
     })
     .eq("id", input.business_id)
     .eq("owner_id", user.id)
@@ -344,6 +369,7 @@ export async function updateBookingSettings(input: {
     .single();
   if (error) throw new Error(error.message);
   revalidatePath("/dashboard/availability");
+  revalidatePath("/dashboard/clients");
   return data;
 }
 

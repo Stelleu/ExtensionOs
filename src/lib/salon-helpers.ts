@@ -441,3 +441,27 @@ export function formatConfirmationDeadlineRemaining(deadline: string): {
   }
   return { label: `${minutes}m left`, isExpired: false };
 }
+
+/** Read-only label for stylists when loyalty is enabled. */
+export function loyaltyProgressLabel(
+  visitCount: number,
+  visitsRequired: number,
+  discountPercent: number
+): string {
+  const visits = Math.max(0, visitCount);
+  const required = Math.max(2, visitsRequired);
+  const percent = Math.max(1, discountPercent);
+  if (visits >= required) {
+    return `${visits} visits — eligible for ${percent}% off`;
+  }
+  const remaining = required - visits;
+  return `${visits} / ${required} visits — ${remaining} more until ${percent}% off`;
+}
+
+export function loyaltyPublicNote(
+  visitsRequired: number,
+  discountPercent: number
+): string {
+  return `Loyalty: get ${discountPercent}% off after ${visitsRequired} visits`;
+}
+
