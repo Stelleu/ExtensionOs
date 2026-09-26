@@ -279,7 +279,7 @@ export function BookingForm({ salon }: BookingFormProps) {
 
   return (
     <section id="book" className="overflow-x-hidden bg-[#FAF8F5] py-14 sm:py-20 lg:py-28">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl min-w-0 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-[#B8956E]">
             Book your glam
@@ -295,7 +295,7 @@ export function BookingForm({ salon }: BookingFormProps) {
 
         <div className="mx-auto mt-12 flex max-w-lg items-center justify-between">
           {STEPS.map((s, i) => (
-            <div key={s.id} className="flex flex-1 items-center">
+            <div key={s.id} className="flex min-w-0 flex-1 items-center">
               <div className="flex flex-col items-center">
                 <div
                   className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold transition-colors sm:h-8 sm:w-8 ${
@@ -312,14 +312,14 @@ export function BookingForm({ salon }: BookingFormProps) {
               </div>
               {i < STEPS.length - 1 && (
                 <div
-                  className={`mx-2 h-px flex-1 ${i < stepIndex ? "bg-[#1A1614]" : "bg-[#E8E0D8]"}`}
+                  className={`mx-2 h-px min-w-0 flex-1 ${i < stepIndex ? "bg-[#1A1614]" : "bg-[#E8E0D8]"}`}
                 />
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(26,22,20,0.12)] ring-1 ring-[#1A1614]/5">
+        <div className="mt-10 min-w-0 max-w-full overflow-hidden rounded-3xl bg-white shadow-[0_8px_60px_-12px_rgba(26,22,20,0.12)] ring-1 ring-[#1A1614]/5">
           {step === "service" && (
             <div className="p-5 sm:p-8 lg:p-10">
               <h3 className="font-serif text-2xl text-[#1A1614]">
@@ -491,8 +491,8 @@ export function BookingForm({ salon }: BookingFormProps) {
           )}
 
           {step === "details" && service && selectedDate && selectedTime && (
-            <div className="grid lg:grid-cols-2">
-              <div className="border-b border-[#E8E0D8] bg-[#FAF8F5] p-5 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
+            <div className="grid min-w-0 lg:grid-cols-2">
+              <div className="min-w-0 border-b border-[#E8E0D8] bg-[#FAF8F5] p-5 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                 <button
                   type="button"
                   onClick={() => setStep("datetime")}
@@ -529,7 +529,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                 </dl>
               </div>
 
-              <form className="space-y-5 p-5 sm:p-8 lg:p-10" onSubmit={submitDetails}>
+              <form className="min-w-0 space-y-5 p-5 sm:p-8 lg:p-10" onSubmit={submitDetails}>
                 <h3 className="font-serif text-2xl text-[#1A1614]">
                   Almost there
                 </h3>
@@ -558,18 +558,20 @@ export function BookingForm({ salon }: BookingFormProps) {
                 />
 
                 {service.requiresHairAddon && hairAddonRows.length > 0 && (
-                  <div className="space-y-3 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-4">
-                    <label className="flex items-center gap-3 text-sm text-[#1A1614]">
+                  <div className="min-w-0 space-y-3 rounded-2xl border border-[#E8E0D8] bg-[#FAF8F5]/50 p-4">
+                    <label className="flex min-w-0 items-start gap-3 text-sm text-[#1A1614]">
                       <input
                         type="checkbox"
                         checked={wantsHairAddon}
                         onChange={(e) => setWantsHairAddon(e.target.checked)}
-                        className="h-4 w-4 accent-[#B8956E]"
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-[#B8956E]"
                       />
-                      I need hair supplied
-                      {hairAddonPrice > 0
-                        ? ` (+${formatPrice(hairAddonPrice)})`
-                        : ""}
+                      <span className="min-w-0 flex-1">
+                        I need hair supplied
+                        {hairAddonPrice > 0
+                          ? ` (+${formatPrice(hairAddonPrice)})`
+                          : ""}
+                      </span>
                     </label>
                     {wantsHairAddon && (
                       <>
@@ -608,7 +610,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                   </div>
                 )}
 
-                <label className="block">
+                <label className="block min-w-0">
                   <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
                     Health notes (optional)
                   </span>
@@ -617,28 +619,32 @@ export function BookingForm({ salon }: BookingFormProps) {
                     onChange={(e) => setHealthNotes(e.target.value)}
                     rows={3}
                     placeholder="Scalp sensitivity, allergies…"
-                    className="w-full resize-none rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3 text-sm text-[#1A1614] outline-none focus:border-[#B8956E] focus:ring-2 focus:ring-[#B8956E]/20"
+                    className="box-border w-full min-w-0 resize-none rounded-xl border border-[#E8E0D8] bg-[#FAF8F5]/50 px-4 py-3 text-sm text-[#1A1614] outline-none focus:border-[#B8956E] focus:ring-2 focus:ring-[#B8956E]/20"
                   />
                 </label>
-                <label className="flex items-start gap-3 text-sm text-[#6B5E58]">
+                <label className="flex min-w-0 items-start gap-3 text-sm text-[#6B5E58]">
                   <input
                     type="checkbox"
                     checked={healthNotesConsent}
                     onChange={(e) => setHealthNotesConsent(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 accent-[#B8956E]"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#B8956E]"
                   />
-                  I consent to these health notes being stored securely for my
-                  appointment (required if notes are provided).
+                  <span className="min-w-0 flex-1 break-words">
+                    I consent to these health notes being stored securely for my
+                    appointment (required if notes are provided).
+                  </span>
                 </label>
-                <label className="flex items-start gap-3 text-sm text-[#6B5E58]">
+                <label className="flex min-w-0 items-start gap-3 text-sm text-[#6B5E58]">
                   <input
                     type="checkbox"
                     checked={imageConsent}
                     onChange={(e) => setImageConsent(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 accent-[#B8956E]"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#B8956E]"
                   />
-                  I consent to my hair transformation being photographed for
-                  the salon&apos;s portfolio. Yes, I consent.
+                  <span className="min-w-0 flex-1 break-words">
+                    I consent to my hair transformation being photographed for
+                    the salon&apos;s portfolio. Yes, I consent.
+                  </span>
                 </label>
 
                 {error && (
@@ -647,7 +653,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                   </p>
                 )}
 
-                <p className="text-center text-xs leading-relaxed text-[#9C8E86]">
+                <p className="text-center text-xs leading-relaxed break-words text-[#9C8E86]">
                   Please double-check your name, email, and phone number —
                   your booking confirmation and all updates will be sent by
                   email.
@@ -656,7 +662,7 @@ export function BookingForm({ salon }: BookingFormProps) {
                 <button
                   type="submit"
                   disabled={!name || !email || !phone || pending}
-                  className="w-full rounded-full bg-[#1A1614] py-4 text-xs font-semibold uppercase tracking-[0.2em] text-white transition-all hover:bg-[#2C2420] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="box-border w-full max-w-full rounded-full bg-[#1A1614] px-4 py-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-all hover:bg-[#2C2420] disabled:cursor-not-allowed disabled:opacity-40 sm:tracking-[0.2em]"
                 >
                   {pending
                     ? "Redirecting to payment…"

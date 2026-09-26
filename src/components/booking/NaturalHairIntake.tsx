@@ -169,7 +169,7 @@ export function NaturalHairIntake({
         <span className="mb-2 block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
           Chemical treatment
         </span>
-        <p className="mb-2 text-xs text-[#9C8E86]">
+        <p className="mb-2 text-xs leading-relaxed text-[#9C8E86]">
           Do you have any chemical treatment (relaxer, colour, keratin, etc.)?
         </p>
         <div className="flex flex-wrap gap-2">

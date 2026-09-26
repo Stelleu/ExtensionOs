@@ -69,7 +69,7 @@ export default function BookingHairPreviewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg bg-[#FAF8F5] p-6">
+    <div className="mx-auto min-w-0 max-w-lg overflow-x-hidden bg-[#FAF8F5] p-4 sm:p-6">
       <h1 className="font-serif text-2xl text-[#1A1614]">
         Hair addon flow preview
       </h1>
@@ -77,15 +77,15 @@ export default function BookingHairPreviewPage() {
         Service: {service.name}
       </p>
 
-      <div className="mt-6 space-y-3 rounded-2xl border border-[#E8E0D8] bg-white p-4">
-        <label className="flex items-center gap-3 text-sm text-[#1A1614]">
+      <div className="mt-6 min-w-0 space-y-3 rounded-2xl border border-[#E8E0D8] bg-white p-4">
+        <label className="flex min-w-0 items-start gap-3 text-sm text-[#1A1614]">
           <input
             type="checkbox"
             checked={wantsHairAddon}
             onChange={(e) => setWantsHairAddon(e.target.checked)}
-            className="h-4 w-4 accent-[#B8956E]"
+            className="mt-0.5 h-4 w-4 shrink-0 accent-[#B8956E]"
           />
-          I need hair supplied
+          <span className="min-w-0 flex-1">I need hair supplied</span>
         </label>
 
         {wantsHairAddon && (
@@ -120,33 +120,33 @@ export default function BookingHairPreviewPage() {
         )}
       </div>
 
-      <div className="mt-8 space-y-3 rounded-2xl border border-[#E8E0D8] bg-white p-4">
+      <div className="mt-8 min-w-0 space-y-3 rounded-2xl border border-[#E8E0D8] bg-white p-4">
         <p className="text-sm font-medium text-[#1A1614]">Contact (confirm)</p>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+          className="box-border w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
           aria-label="Full name"
         />
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+          className="box-border w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
           aria-label="Email"
         />
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="w-full rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
+          className="box-border w-full min-w-0 rounded-xl border border-[#E8E0D8] px-3 py-2 text-sm"
           aria-label="Phone"
         />
-        <p className="text-center text-xs leading-relaxed text-[#9C8E86]">
+        <p className="text-center text-xs leading-relaxed break-words text-[#9C8E86]">
           Please double-check your name, email, and phone number — your booking
           confirmation and all updates will be sent by email.
         </p>
         <button
           type="button"
-          className="w-full rounded-full bg-[#1A1614] py-3 text-xs font-semibold uppercase tracking-[0.2em] text-white"
+          className="box-border w-full max-w-full rounded-full bg-[#1A1614] px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white sm:tracking-[0.2em]"
         >
           Confirm booking
         </button>

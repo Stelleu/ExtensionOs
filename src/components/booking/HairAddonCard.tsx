@@ -150,28 +150,30 @@ export function HairAddonCarousel({
   ];
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <span className="block text-xs font-medium uppercase tracking-wider text-[#9C8E86]">
         Choose length &amp; texture
       </span>
-      <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2">
-        {ordered.map((entry) => {
-          const selected =
-            entry.length === selectedLength &&
-            entry.texture === selectedTexture;
-          const recommended = recommendedSet.has(
-            normalizeHairTextureKey(entry.texture)
-          );
-          return (
-            <HairAddonCard
-              key={`${entry.length}-${entry.texture}`}
-              entry={entry}
-              selected={selected}
-              recommended={recommended}
-              onSelect={() => onSelect(entry.length, entry.texture)}
-            />
-          );
-        })}
+      <div className="min-w-0 max-w-full overflow-x-auto overscroll-x-contain pb-2 [-webkit-overflow-scrolling:touch]">
+        <div className="flex w-max gap-3">
+          {ordered.map((entry) => {
+            const selected =
+              entry.length === selectedLength &&
+              entry.texture === selectedTexture;
+            const recommended = recommendedSet.has(
+              normalizeHairTextureKey(entry.texture)
+            );
+            return (
+              <HairAddonCard
+                key={`${entry.length}-${entry.texture}`}
+                entry={entry}
+                selected={selected}
+                recommended={recommended}
+                onSelect={() => onSelect(entry.length, entry.texture)}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
