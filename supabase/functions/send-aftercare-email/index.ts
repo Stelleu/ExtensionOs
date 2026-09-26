@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
       business?.care_instructions?.trim() ||
       "Avoid oil-based products at the bonds, sleep with hair in a loose braid, and book maintenance every 6–8 weeks for best results.";
 
-    const siteUrl = Deno.env.get("SITE_URL") ?? "http://localhost:3000";
+    const siteUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
     let reviewToken: string | null = null;
 
     const { data: existingReview } = await supabase

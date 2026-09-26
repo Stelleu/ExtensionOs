@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = createServiceClient();
-    const siteUrl = Deno.env.get("SITE_URL") ?? "http://localhost:3000";
+    const siteUrl = Deno.env.get("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
 
     const { data: booking, error } = await supabase
       .from("bookings")
