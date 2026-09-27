@@ -26,8 +26,8 @@ export async function GET(
   const headers = new Headers();
   const location = upstream.headers.get("location");
   if (location) headers.set("location", location);
-  const contentType = upstream.headers.get("content-type");
-  if (contentType) headers.set("content-type", contentType);
+  // Supabase rewrites text/html responses from Edge Functions to text/plain.
+  if (!location) headers.set("content-type", "text/html; charset=utf-8");
 
   return new NextResponse(upstream.body, {
     status: upstream.status,

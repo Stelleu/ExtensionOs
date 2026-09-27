@@ -5,6 +5,7 @@ import {
   monthOverMonthPercent,
   type RevenueMonthRow,
 } from "@/lib/revenue";
+import { RevenueChart } from "@/components/dashboard/RevenueChart";
 
 export function RevenueDashboard({ months }: { months: RevenueMonthRow[] }) {
   const current = months[months.length - 1];
@@ -15,11 +16,6 @@ export function RevenueDashboard({ months }: { months: RevenueMonthRow[] }) {
     previous?.deposits_collected ?? 0
   );
   const depositsLabel = formatMomLabel(depositsMom);
-
-  const maxDeposit = Math.max(
-    1,
-    ...months.map((m) => m.deposits_collected)
-  );
 
   return (
     <div>
@@ -66,14 +62,15 @@ export function RevenueDashboard({ months }: { months: RevenueMonthRow[] }) {
 
       <section className="mt-10 rounded-3xl bg-white p-6 ring-1 ring-[#1A1614]/5 sm:p-8">
         <h2 className="font-serif text-2xl text-[#1A1614]">
-          Deposits by month
+          Revenue by month
         </h2>
         <p className="mt-1 text-sm text-[#6B5E58]">
-          Last {months.length} months · deposits collected
+          Last {months.length} months · each bar is the full service value,
+          split into deposit collected and balance due
         </p>
 
         <div className="mt-8">
-          <RevenueBarChart months={months} maxDeposit={maxDeposit} />
+          <RevenueChart months={months} />
         </div>
 
         <ul className="mt-8 space-y-3 border-t border-[#E8E0D8] pt-6">
@@ -114,68 +111,6 @@ function SummaryCard({
       </p>
       <p className="mt-2 font-serif text-3xl text-[#1A1614]">{value}</p>
       <p className="mt-1 text-xs text-[#9C8E86]">{hint}</p>
-    </div>
-  );
-}
-
-function RevenueBarChart({
-  months,
-  maxDeposit,
-}: {
-  months: RevenueMonthRow[];
-  maxDeposit: number;
-}) {
-  const width = 600;
-  const height = 180;
-  const padX = 24;
-  const padTop = 12;
-  const padBottom = 36;
-  const chartH = height - padTop - padBottom;
-  const chartW = width - padX * 2;
-  const gap = 12;
-  const barW =
-    months.length > 0
-      ? (chartW - gap * (months.length - 1)) / months.length
-      : chartW;
-
-  return (
-    <div className="w-full overflow-x-auto">
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        className="h-auto w-full min-w-[320px]"
-        role="img"
-        aria-label="Deposits collected by month"
-      >
-        {months.map((m, i) => {
-          const h =
-            maxDeposit > 0
-              ? (m.deposits_collected / maxDeposit) * chartH
-              : 0;
-          const x = padX + i * (barW + gap);
-          const y = padTop + chartH - h;
-          return (
-            <g key={m.month_start}>
-              <rect
-                x={x}
-                y={y}
-                width={barW}
-                height={Math.max(h, m.deposits_collected > 0 ? 2 : 0)}
-                rx={6}
-                fill="#1A1614"
-              />
-              <text
-                x={x + barW / 2}
-                y={height - 12}
-                textAnchor="middle"
-                className="fill-[#9C8E86]"
-                style={{ fontSize: 11 }}
-              >
-                {formatMonthLabel(m.month_start).replace(/ \d{4}$/, "")}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
     </div>
   );
 }
