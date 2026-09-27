@@ -6,7 +6,13 @@ import { formatDisplayDate } from "../_shared/format.ts";
 type ExpiredRow = {
   id: string;
   appointment_date: string;
-  businesses: { name: string; slug: string } | null;
+  businesses: {
+    name: string;
+    slug: string;
+    instagram: string | null;
+    email: string | null;
+    phone: string | null;
+  } | null;
   clients: { name: string; email: string | null } | null;
   services: { name: string } | null;
 };
@@ -67,7 +73,7 @@ Deno.serve(async (req) => {
         `
         id,
         appointment_date,
-        businesses ( name, slug ),
+        businesses ( name, slug, instagram, email, phone ),
         clients ( name, email ),
         services ( name )
       `
@@ -80,8 +86,17 @@ Deno.serve(async (req) => {
     let emailsSent = 0;
     for (const row of (rows ?? []) as ExpiredRow[]) {
       const clientEmail = row.clients?.email;
-      const slug = row.businesses?.slug;
-      if (!clientEmail || !slug) continue;
+      const business = row.businesses;
+      const slug = business?.slug;
+      if (!clientEmail || !business || !slug) continue;
+
+      const contact = business.instagram
+        ? `Instagram: @${business.instagram}`
+        : business.email
+        ? `Email: ${business.email}`
+        : business.phone
+        ? `Phone: ${business.phone}`
+        : "";
 
       try {
         await sendTemplatedEmail({
@@ -91,16 +106,16 @@ Deno.serve(async (req) => {
           intro: `Hi ${row.clients?.name ?? "there"}, your booking for ${row.services?.name ?? "your service"} on ${formatDisplayDate(String(row.appointment_date))} wasn't confirmed in time and the slot has been released. If you'd still like to book, you're welcome to try again on our booking page.`,
           ctaUrl: `${siteUrl}/${slug}`,
           ctaLabel: "Book again",
-          const contact = business.instagram
-          ? `Instagram: @${business.instagram}`
-          : business.email
-          ? `Email: ${business.email}`
-          : business.phone
-          ? `Phone: ${business.phone}`
-          : '';
-          body: `<p>If this was a mistake, please contact ${business.name} directly: ${contact}</p>`,
+          sections: contact
+            ? [
+                {
+                  heading: "Need help?",
+                  body: `If this was a mistake, please contact ${business.name} directly. ${contact}`,
+                },
+              ]
+            : undefined,
         });
-        
+
         emailsSent += 1;
       } catch (emailErr) {
         console.error("notify-expired-booking email failed", row.id, emailErr);
